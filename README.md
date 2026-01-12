@@ -9,7 +9,7 @@
 Oracle V5.2 is a research-grade atmospheric simulation system designed to model tropical cyclones from first principles. Unlike traditional numerical weather prediction models that rely heavily on parameterizations and empirical tuning, Oracle aims to simulate hurricane physics directly from the Navier-Stokes equations with minimal artificial corrections.
 
 **Current Version**: V5.2 "Surgical Strike"  
-**Development Team**: Justin (Chief Scientist) + AI Ensemble (Claude, Gemini, Five/GPT-5)  
+**Development Team**: Justin Watford + AI Ensemble (Claude, Gemini, Five/GPT-5.2)  
 **Status**: Active Development & Testing  
 **Performance**: GPU-accelerated via CuPy (23× speedup over CPU)
 
@@ -436,7 +436,7 @@ Available storms: Any in HURDAT2 database (1851-present)
 ## 🤝 CONTRIBUTING
 
 Oracle V5 is developed through ensemble AI collaboration. Current team:
-- **Justin** - Chief Scientist, system architect, testing
+- **Justin** - system architect, testing
 - **Claude (Anthropic)** - Implementation, debugging, documentation
 - **Gemini (Google)** - Mathematical analysis, theoretical physics
 - **Five/GPT-5 (OpenAI)** - Code review, bug detection
@@ -451,7 +451,7 @@ Oracle V5 is developed through ensemble AI collaboration. Current team:
 
 ## 📝 LICENSE
 
-[To be determined - Educational/Research use]
+MIT
 
 ---
 
@@ -478,8 +478,8 @@ Oracle V5 is developed through ensemble AI collaboration. Current team:
 
 ##  CONTACT
 
-**Project Lead**: Justin (Chief Scientist, American Red Cross)  
-**Development**: Multi-AI Ensemble (Claude, Gemini, Five)  
+**Project Lead**: Justin Watford
+**Development**: Multi-AI Ensemble (Claude, Gemini, Five/GPT 5)  
 **Status**: Active Development (V5.2 testing in progress as of January 10, 2026)
 
 ---
