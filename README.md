@@ -1,4 +1,4 @@
-# ORACLE V5.2 "SURGICAL STRIKE"
+# ORACLE V5.2 
 ### GPU-Accelerated Hurricane Simulation System
 **Pure Physics Hurricane Modeling with Ensemble AI Development**
 
@@ -9,7 +9,7 @@
 Oracle V5.2 is a research-grade atmospheric simulation system designed to model tropical cyclones from first principles. Unlike traditional numerical weather prediction models that rely heavily on parameterizations and empirical tuning, Oracle aims to simulate hurricane physics directly from the Navier-Stokes equations with minimal artificial corrections.
 
 **Current Version**: V5.2 "Surgical Strike"  
-**Development Team**: Justin Watford + AI Ensemble (Claude, Gemini, Five/GPT-5.2)  
+**Development Team**: Justin Watford + AI Ensemble (Claude, Gemini, Five/GPT-5)  
 **Status**: Active Development & Testing  
 **Performance**: GPU-accelerated via CuPy (23× speedup over CPU)
 
@@ -26,13 +26,13 @@ Oracle V5.2 is a research-grade atmospheric simulation system designed to model 
 
 ##  V5.2 "SURGICAL STRIKE" - WHAT'S NEW
 
-V5.2 represents a complete overhaul of the numerical methods based on rigorous mathematical analysis by the AI ensemble. Three critical "energy leaks" were identified and patched:
+V5.2 represents a complete overhaul of the numerical methods based on rigorous mathematical analysis. Three critical "energy leaks" were identified and patched:
 
 ### **Patch #1: Cubic Advection** 
 **Problem**: Linear interpolation (`order=1`) created massive numerical diffusion, erasing vortex structure within 100 frames  
 **Solution**: Upgraded to cubic interpolation (`order=3`)  
 **Impact**: 10× reduction in numerical viscosity  
-**Credit**: Five's code review
+
 
 ### **Patch #2: Cayley Coriolis** 
 **Problem**: Explicit Euler time integration of Coriolis force was unconditionally unstable (proven mathematically)  
@@ -192,8 +192,8 @@ Oracle V5 pioneered a novel "multi-AI ensemble" development approach, orchestrat
 ### **File Structure**
 ```
 OracleV5/
-├── world_woe_v5_2.py          # Main simulation
-├── core_solver_v5_2.py         # Numerical methods (V5.2 patched)
+├── world_woe_v5.py          # Main simulation
+├── core_solver.py         # Numerical methods (V5.2 patched)
 ├── environment.py              # Basin SST/OHC
 ├── data_interface.py           # ERA5 + HURDAT2
 ├── boundary_conditions.py      # Surface fluxes
@@ -433,13 +433,13 @@ Available storms: Any in HURDAT2 database (1851-present)
 
 ---
 
-## 🤝 CONTRIBUTING
+##  CONTRIBUTING
 
 Oracle V5 is developed through ensemble AI collaboration. Current team:
-- **Justin** - system architect, testing
+- **Justin** - System architect, testing
 - **Claude (Anthropic)** - Implementation, debugging, documentation
 - **Gemini (Google)** - Mathematical analysis, theoretical physics
-- **Five/GPT-5 (OpenAI)** - Code review, bug detection
+- **Five/GPT-5.2 (OpenAI)** - Code review, bug detection
 
 **Community contributions welcome!** Please open issues for:
 - Bug reports with diagnostic output
@@ -449,7 +449,7 @@ Oracle V5 is developed through ensemble AI collaboration. Current team:
 
 ---
 
-## 📝 LICENSE
+## LICENSE
 
 MIT
 
@@ -467,19 +467,13 @@ MIT
 - Google (Gemini) - Rigorous mathematical analysis and proofs
 - OpenAI (Five/GPT-5) - Critical code reviews and bug catches
 - xAI (Grok) - Early tracker development
-- DeepSeek - CFD physics expertise
-
-**Special Thanks**:
-- **Five** for catching the sponge mask geometry bug (saved V5.2!)
-- **Gemini** for the 7-page mathematical proof of Coriolis instability
-- **Opus** (Claude's cousin) for the Cooldown mechanism in V50.3 tracker
-
+- DeepSeek - CFD physics 
 ---
 
 ##  CONTACT
 
 **Project Lead**: Justin Watford
-**Development**: Multi-AI Ensemble (Claude, Gemini, Five/GPT 5)  
+**Development**: Multi-AI Ensemble (Claude, Gemini, Five)  
 **Status**: Active Development (V5.2 testing in progress as of January 10, 2026)
 
 ---
