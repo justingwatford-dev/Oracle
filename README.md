@@ -85,7 +85,7 @@ pip install cdsapi  # For ERA5 reanalysis data
 ### Basic Usage
 
 ```bash
-python world_woe_main_V6_THETA_V6.19_BETAANGLE.py \
+python world_woe_main_V6_THETA.py \
     --storm HUGO --year 1989 --frames 500000 \
     --resolution-boost 50 \
     --beta-drift --beta-drift-speed 2.5 \
@@ -100,7 +100,7 @@ python world_woe_main_V6_THETA_V6.19_BETAANGLE.py \
 ### Full Production Command
 
 ```bash
-python world_woe_main_V6_THETA_V6.19_BETAANGLE.py \
+python world_woe_main_V6_THETA.py \
     --storm HUGO --year 1989 --frames 500000 \
     --resolution-boost 50 \
     --moist-floor 0.0 --updraft-only-moist \
@@ -220,7 +220,7 @@ Multiple systems prevent numerical instability:
 
 ```
 OracleV6/
-├── world_woe_main_V6_THETA_V6.19_BETAANGLE.py  # Main simulation
+├── python world_woe_main_V6_THETA.py            # Main simulation
 ├── core_solver.py                               # Spectral N-S solver
 ├── data_interface.py                            # ERA5/HURDAT2 interface
 ├── basin.py                                     # SST/OHC climatology
