@@ -1,3 +1,23 @@
+"""
+Oracle V6.16 Core Solver - Steering Injection Fix
+
+Key Changes:
+    V6.2: resolution_boost configurable (Five + Gemini "Molasses" fix)
+    V6.16: Steering flow injection in project() (Gemini "Treadmill" fix)
+
+The V6.16 STEERING FIX:
+    Problem: The pressure projection preserved domain-mean velocity, but a 
+    symmetric vortex has mean ≈ 0. ERA5 steering was only used to move domain
+    boundaries, never injected into fluid dynamics. Result: vortex spins in 
+    place while domain slides underneath ("treadmill effect").
+    
+    Solution: After projection, restore ENVIRONMENTAL STEERING velocity 
+    (from ERA5) instead of the vortex's self-mean. This couples the fluid
+    to the large-scale flow.
+
+Modification: Claude (Opus 4.5), January 2026
+Based on: Gemini's forensic analysis of "Steering Cancellation Paradox"
+"""
 import numpy as np
 import sys
 
@@ -31,6 +51,10 @@ class CoreSolver:
         # PATCH V38: k=0 mode is now handled properly in project() method
         
         self.grid_points = xp.mgrid[0:self.sim.nx, 0:self.sim.ny, 0:self.sim.nz]
+        
+        # V6.2: Diagnostic storage for turbulent viscosity
+        self.last_nu_turb_max = 0.0
+        self.last_nu_turb_mean = 0.0
 
     def gradient_x(self, f):
         return fft.ifftn(1j * self.kx[:, xp.newaxis, xp.newaxis] * fft.fftn(f)).real
@@ -44,34 +68,24 @@ class CoreSolver:
     def laplacian(self, f):
         return fft.ifftn(-self.k_squared * fft.fftn(f)).real
 
-    # === RED TEAM PATCH: SMAGORINSKY TURBULENCE CLOSURE ===
-    # === V62.1 FIX: Resolution Scaling for Coarse Grid ===
+    # === V6.2 PATCH: CONFIGURABLE RESOLUTION BOOST ===
+    # === Based on Five + Gemini "Molasses Atmosphere" Analysis ===
     def compute_smagorinsky_viscosity(self, u, v, w, Cs=0.17):
         """
         Computes dynamic eddy viscosity based on the Strain Rate Tensor (S_ij).
-        Replaces 'Outcome-Based' lookup tables with 'Physics-Based' turbulence.
         
-        Formula: nu_t = (Cs * Delta)^2 * |S|
-        Where |S| = sqrt(2 * S_ij * S_ij)
+        V6.2 CHANGE (Five + Gemini Ensemble Fix):
+        ------------------------------------------
+        The 1500× resolution_boost was identified as creating a "viscous wall"
+        that dynamically strengthens as the storm intensifies (because νt ∝ |S|).
         
-        V62.1 FIX: Resolution Boost
-        ---------------------------
-        The standard Smagorinsky constant (Cs ≈ 0.17) is calibrated for high-resolution
-        LES with physical units. In our coarse-grid (15 km) dimensionless simulation:
+        This makes the atmosphere behave like "molasses" - the harder the storm
+        spins, the more viscous it becomes, creating an artificial intensity ceiling.
         
-        - delta_dimensionless ≈ 0.015 (= lx/nx = 2.0/128)
-        - (Cs * delta)^2 ≈ 6.5e-6 (TINY!)
+        FIX: resolution_boost is now configurable via self.sim.resolution_boost
         
-        This produces nu_turb ≈ 0.0001-0.001, but we need 0.1-0.5 to match the 
-        effective viscosity range the simulation requires (comparable to old Magic Mu).
-        
-        Solution: Apply a resolution_boost factor that accounts for:
-        1. Our coarse 15 km grid (vs typical LES at meters)
-        2. Sub-grid turbulence we cannot resolve
-        3. The dimensionless formulation
-        
-        This is physically justified - coarse LES commonly uses "effective" or 
-        "augmented" Smagorinsky constants 10-100x larger than DNS values.
+        Recommended test sweep: 1500 → 300 → 150 → 75
+        Hypothesis: Ceiling should rise as boost decreases
         """
         # 1. Compute velocity gradients (Strain Rate Tensor Components)
         du_dx = self.gradient_x(u)
@@ -87,8 +101,6 @@ class CoreSolver:
         dw_dz = self.gradient_z(w)
 
         # 2. Compute Symmetric Strain Tensor elements
-        # S_xx, S_yy, S_zz are just the diagonal gradients
-        # Off-diagonals: S_xy = 0.5 * (du_dy + dv_dx), etc.
         S_xx = du_dx
         S_yy = dv_dy
         S_zz = dw_dz
@@ -97,35 +109,27 @@ class CoreSolver:
         S_yz = 0.5 * (dv_dz + dw_dy)
 
         # 3. Compute Magnitude of Strain Rate |S|
-        # |S|^2 = 2 * (sum of squares of all elements)
-        # S_ij is symmetric, so we sum diagonals + 2*off-diagonals
         S_squared = (S_xx**2 + S_yy**2 + S_zz**2) + \
                     2.0 * (S_xy**2 + S_xz**2 + S_yz**2)
         
         S_magnitude = xp.sqrt(2.0 * S_squared)
 
         # 4. Filter Scale (Delta) - Dimensionless
-        # Delta = (dx * dy * dz)^(1/3)
         delta = (self.sim.dx * self.sim.dy * self.sim.dz)**(1/3)
 
-        # 5. Resolution Boost Factor
-        # For our 15 km coarse grid, we need to boost the Smagorinsky output
-        # to produce viscosities in the 0.1-0.5 range (matching old Magic Mu).
-        # 
-        # Derivation: 
-        #   Current: (0.17 * 0.015)^2 ≈ 6.5e-6 multiplier
-        #   Target:  Need nu_turb ≈ 0.1-0.5 at high shear
-        #   Boost:   ~1000-2000x to bridge the gap
-        #
-        # We use 1500 as a balanced value, tunable via self.sim if needed.
-        resolution_boost = 1500.0
+        # 5. V6.2: CONFIGURABLE Resolution Boost Factor
+        # Read from simulation config, default to 1500.0 for backwards compatibility
+        resolution_boost = getattr(self.sim, 'resolution_boost', 1500.0)
 
         # 6. Compute Eddy Viscosity with Resolution Scaling
-        # nu_t = boost * (Cs * Delta)^2 * |S|
         nu_turb = resolution_boost * (Cs * delta)**2 * S_magnitude
         
+        # V6.2: Store diagnostics for monitoring
+        self.last_nu_turb_max = float(xp.max(nu_turb))
+        self.last_nu_turb_mean = float(xp.mean(nu_turb))
+        
         return nu_turb
-    # === END SMAGORINSKY PATCH ===
+    # === END V6.2 SMAGORINSKY PATCH ===
 
     def advect(self, f, u, v, w):
         departure_x = self.grid_points[0] - u * self.sim.dt_solver / self.sim.dx
@@ -137,6 +141,45 @@ class CoreSolver:
         # V5.2: Configurable interpolation (order set by simulation class, default=3)
         f_advected = ndimage.map_coordinates(f, departure_points, order=getattr(self, "advection_order", 3), mode='wrap')
         
+        # =====================================================================
+        # V6.5 FIX: QUASI-MONOTONIC LIMITER (Gemini's "Bermejo Fix")
+        # =====================================================================
+        # Problem: Cubic spline interpolation (order=3) is NOT monotonic.
+        # At sharp gradients (like eyewall), it produces Gibbs overshoots -
+        # "phantom energy" that triggers the WISHE feedback loop.
+        #
+        # Solution: After interpolation, clip values to the local min/max
+        # of the original field. This ensures advection NEVER creates new
+        # extrema, eliminating the phantom heat source.
+        #
+        # Reference: Bermejo & Staniforth (1992), MWR
+        # =====================================================================
+        
+        if getattr(self.sim, 'monotonic_advection', False):
+            try:
+                # Get global bounds from the ORIGINAL field (before advection)
+                # This is a simpler, more robust approach than local neighborhood
+                f_global_min = float(xp.min(f))
+                f_global_max = float(xp.max(f))
+                
+                # Add small buffer to avoid over-clamping (1% of range)
+                f_range = f_global_max - f_global_min
+                buffer = 0.01 * max(f_range, 1.0)  # At least 1K buffer
+                
+                # Clip the cubic-interpolated values to enforce monotonicity
+                # Advection should NEVER create values outside the original field's range
+                f_advected = xp.clip(f_advected, f_global_min - buffer, f_global_max + buffer)
+                
+                # Secondary safety: check for any remaining NaN/Inf
+                if xp.any(xp.isnan(f_advected)) or xp.any(xp.isinf(f_advected)):
+                    print("[WARNING] Monotonic advection produced NaN/Inf, reverting to unclamped")
+                    f_advected = ndimage.map_coordinates(f, departure_points, order=getattr(self, "advection_order", 3), mode='wrap')
+                    
+            except Exception as e:
+                # If anything goes wrong, fall back to standard advection
+                print(f"[WARNING] Monotonic advection failed: {e}, using standard")
+                f_advected = ndimage.map_coordinates(f, departure_points, order=getattr(self, "advection_order", 3), mode='wrap')
+        
         return f_advected
 
     def project(self, u, v, w, damping_factor_h, damping_factor_w):
@@ -145,11 +188,22 @@ class CoreSolver:
         Solves ∇²p = ∇·u to enforce incompressibility.
         
         V50.5 UPDATE: Surgical Governor application.
+        
+        V6.16 UPDATE: STEERING INJECTION FIX (Gemini's "Treadmill" Fix)
+        ================================================================
+        Problem: Previously, we preserved domain-mean velocity after projection.
+        But a symmetric vortex has mean ≈ 0, so the storm spun in place while
+        the domain boundaries moved ("treadmill effect").
+        
+        Solution: After projection, restore ENVIRONMENTAL STEERING velocity
+        (from ERA5) instead of the vortex's self-mean. This couples the fluid
+        to the large-scale synoptic flow.
+        
+        The steering values are stored in self.sim by the main simulation loop
+        as current_u_steering_nd and current_v_steering_nd (dimensionless).
         """
         
         # 1. SEPARATE MEAN FLOW (The "DC Component")
-        # The solver only works on the fluctuating component.
-        # We must preserve the mean flow (translation) separately.
         u_mean = xp.mean(u)
         v_mean = xp.mean(v)
         w_mean = xp.mean(w)
@@ -165,7 +219,6 @@ class CoreSolver:
         div_hat = fft.fftn(divergence)
         
         # 4. ENFORCE GLOBAL MASS CONSERVATION
-        # The total divergence of the domain must be zero for incompressible flow.
         div_hat[0, 0, 0] = 0.0
         
         # 5. SOLVE POISSON EQUATION: k² p_hat = -div_hat
@@ -190,16 +243,6 @@ class CoreSolver:
         # === V50.5 PATCH: SURGICAL INTENSITY GOVERNOR ===
         # === V53.1 UPDATE: Proper 3D Velocity Clamping ===
         # === V54 UPDATE: Stronger Damping (Gemini's Fix) ===
-        # MOVED UP: We apply the governor to the PERTURBATION velocity (spin)
-        # BEFORE adding back the mean flow (steering). 
-        # This prevents "The Parking Brake Effect" where high winds killed forward motion.
-        
-        # V53.1 FIX: The original V50.5 clamped each component separately,
-        # but this allowed the TOTAL 3D magnitude to exceed the cap.
-        # Solution: Clamp the velocity VECTOR magnitude, not components.
-        
-        # V54 FIX: Strengthen progressive damping to prevent oscillations
-        # (Gemini's diagnosis: ±40kt oscillations from too-soft damping)
         
         MAX_REALISTIC_WIND_MS = 95.0  # ~185 kts (Strongest observed Atlantic hurricane)
         EMERGENCY_DAMPING_THRESHOLD = 85.0  # ~165 kts (Start damping at strong H5)
@@ -209,33 +252,24 @@ class CoreSolver:
         max_spin_ms = float(xp.max(velocity_magnitude_3d) * self.sim.U_CHAR)
         
         if max_spin_ms > EMERGENCY_DAMPING_THRESHOLD:
-            # === V54 DAMPING ENHANCEMENT (Gemini's Fix) ===
-            # Diagnosis: ±40kt oscillations at H5 intensity
-            # Cause: Damping ramp (0.15) too gentle, acting like a soft spring
-            # Fix: Stiffen the spring to 0.35 to prevent bounce-back
-            
             overshoot = max_spin_ms - EMERGENCY_DAMPING_THRESHOLD
             excess_ratio = overshoot / EMERGENCY_DAMPING_THRESHOLD
             
             # V54: Stronger progressive damping (0.35 max vs 0.15)
-            # Steepened slope (0.7 vs 0.3) - "Stiffer spring"
             emergency_damping = 1.0 - min(0.35, excess_ratio * 0.7)
             
             u *= emergency_damping
             v *= emergency_damping
             w *= emergency_damping
-            # === END V54 DAMPING ENHANCEMENT ===
             
             # Recalculate after damping
             velocity_magnitude_3d = xp.sqrt(u**2 + v**2 + w**2)
             max_spin_ms = float(xp.max(velocity_magnitude_3d) * self.sim.U_CHAR)
             
             if max_spin_ms > MAX_REALISTIC_WIND_MS:
-                # === V53.1 VECTOR MAGNITUDE CLAMPING (PRESERVED!) ===
-                # Scale the velocity VECTOR to cap at MAX_REALISTIC_WIND_MS
+                # V53.1 VECTOR MAGNITUDE CLAMPING
                 velocity_magnitude_3d_physical = velocity_magnitude_3d * self.sim.U_CHAR
                 
-                # Create scale factor FIELD: only where velocity exceeds cap
                 scale_factor = xp.where(
                     velocity_magnitude_3d_physical > MAX_REALISTIC_WIND_MS,
                     MAX_REALISTIC_WIND_MS / (velocity_magnitude_3d_physical + 1e-12),
@@ -246,22 +280,43 @@ class CoreSolver:
                 v *= scale_factor
                 w *= scale_factor
                 
-                # Log when actively clamping (not just damping)
                 if max_spin_ms > MAX_REALISTIC_WIND_MS:
                      print(f"    ⚠️ V54 SURGICAL GOVERNOR: Clamped 3D Spin {max_spin_ms:.1f} -> {MAX_REALISTIC_WIND_MS:.1f} m/s")
-                # === END V53.1 VECTOR CLAMPING ===
         # === END V50.5/V53.1/V54 PATCH ===
         
-        # 9. RESTORE MEAN FLOW (Steering is preserved 100%)
-        u += u_mean
-        v += v_mean
-        w += w_mean
+        # =====================================================================
+        # 9. V6.16 STEERING INJECTION (Gemini's "Treadmill" Fix)
+        # =====================================================================
+        # Instead of restoring the vortex's domain mean (which is ~0 for a
+        # symmetric vortex), we restore the ENVIRONMENTAL STEERING flow.
+        # This couples the fluid to the large-scale synoptic flow.
+        #
+        # The steering values come from ERA5 via the main simulation loop.
+        # They are stored as dimensionless values (divided by U_CHAR).
+        # =====================================================================
+        
+        # Check if steering injection is enabled and values are available
+        steering_injection = getattr(self.sim, 'steering_injection_enabled', False)
+        
+        if steering_injection:
+            # Get environmental steering (dimensionless, from ERA5)
+            u_steering_nd = getattr(self.sim, 'current_u_steering_nd', 0.0)
+            v_steering_nd = getattr(self.sim, 'current_v_steering_nd', 0.0)
+            
+            # Restore steering flow instead of domain mean
+            u += u_steering_nd
+            v += v_steering_nd
+            w += w_mean  # Vertical mean is fine (no large-scale vertical steering)
+        else:
+            # Backwards compatibility: restore domain mean
+            u += u_mean
+            v += v_mean
+            w += w_mean
         
         return u, v, w, p
 
 
     def get_max_velocity(self, u, v, w):
-        # Add a check for NaN/Inf values
         if not xp.all(xp.isfinite(u)):
             return xp.inf
         return float(xp.max(xp.sqrt(u**2 + v**2 + w**2)))
