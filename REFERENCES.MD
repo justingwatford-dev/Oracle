@@ -347,7 +347,7 @@ When citing Oracle V5.2 in academic work:
 ```
 Watford, J., with Claude (Anthropic), Gemini (Google), & Five (OpenAI). (2026). 
 Oracle V5.2: GPU-Accelerated Hurricane Simulation System. 
-GitHub repository: [repository URL]
+GitHub repository: github.com/justingwatford-dev/Oracle
 ```
 
 ---
