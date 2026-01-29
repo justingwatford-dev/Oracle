@@ -26,21 +26,21 @@ import sys
 # Status: PRODUCTION READY
 
 # === GPU ACCELERATION TOGGLE ===
-USE_GPU = True
+USE_GPU = False
 
 try:
     if USE_GPU:
         import cupy as xp
         import cupyx.scipy.ndimage as ndimage
         import cupyx.scipy.fft as fft
-        print(f"[{__name__}] 🚀 GPU Acceleration ENABLED (CuPy)")
+        print(f"[{__name__}] GPU Acceleration ENABLED (CuPy)")
     else:
         raise ImportError
 except ImportError:
     import numpy as xp
     import scipy.ndimage as ndimage
     import scipy.fft as fft
-    print(f"[{__name__}] 🐢 GPU Acceleration DISABLED (NumPy)")
+    print(f"[{__name__}] GPU Acceleration DISABLED (NumPy)")
 
 
 class DataInterface:
