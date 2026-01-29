@@ -49,7 +49,7 @@ class BoundaryConditions:
         - Wind speed for physics: m/s (converted explicitly)
         - Temperature: Celsius internally, Kelvin for calculations
         - Pressure: Pascals
-        - Fluxes: SI units (kg/(m²·s) for moisture, W/m² for heat)
+        - Fluxes: SI units (kg/(mÂ²Â·s) for moisture, W/mÂ² for heat)
     """
     
     def __init__(self, sim_instance):
@@ -58,11 +58,11 @@ class BoundaryConditions:
         # === PHYSICAL CONSTANTS ===
         # === ENSEMBLE: Progressive Equilibrium - Sensible Flux ===
         # Heat exchange coefficient (dimensionless)
-        # C_h = 0.0011 provides ~100 W/m² sensible heat (observed reality)
+        # C_h = 0.0011 provides ~100 W/mÂ² sensible heat (observed reality)
         # We set a *base* value which will be throttled by the Governor Protocol
         self.C_h_base = 0.0018  # ENSEMBLE FIX (per Grok): "Major Cruise" sensible heat
         
-        # Air density at sea level (kg/m³)
+        # Air density at sea level (kg/mÂ³)
         self.air_density = 1.225
         
         print("BoundaryConditions initialized with SI-compliant flux calculations.")
@@ -117,7 +117,7 @@ class BoundaryConditions:
         
         Args:
             q: 3D specific humidity field (kg/kg)
-            T: 3D temperature field (°C)
+            T: 3D temperature field (Â°C)
             q_flux_boost_factor: Multiplier for moisture flux (default: 1.0)
             land_fraction: 2D land fraction field [0,1] (None = all ocean)
             
@@ -125,8 +125,8 @@ class BoundaryConditions:
             Tuple: (q_updated, T_updated, mean_q_flux, mean_h_flux, dampening_factor)
                 - q_updated: Updated humidity field
                 - T_updated: Updated temperature field
-                - mean_q_flux: Mean moisture flux (kg/(m²·s))
-                - mean_h_flux: Mean heat flux (W/m²)
+                - mean_q_flux: Mean moisture flux (kg/(mÂ²Â·s))
+                - mean_h_flux: Mean heat flux (W/mÂ²)
                 - dampening_factor: WISDOM dampening factor for diagnostics
         """
         # === INPUT VALIDATION ===
@@ -187,7 +187,7 @@ class BoundaryConditions:
         # === END GOVERNOR PROTOCOL ===
         
         # === OCEAN SURFACE CONDITIONS ===
-        T_ocean_surface = self.sim.SST  # Sea Surface Temperature (°C)
+        T_ocean_surface = self.sim.SST  # Sea Surface Temperature (Â°C)
         q_sat_ocean = self.calculate_saturation_humidity(T_ocean_surface)
         
         # === BULK TRANSFER COEFFICIENTS ===
@@ -255,7 +255,7 @@ class BoundaryConditions:
             
             # Only print every 100th activation
             if self._wisdom_log_counter % 100 == 0:
-                print(f"    🛑 V51 WISDOM ACTIVE: Wind={max_wind_kts:.0f}kts, Dampening={dampening_factor:.2f} ({(1-dampening_factor)*100:.0f}% flux cut) [x{self._wisdom_log_counter}]")
+                print(f"    ðŸ›‘ V51 WISDOM ACTIVE: Wind={max_wind_kts:.0f}kts, Dampening={dampening_factor:.2f} ({(1-dampening_factor)*100:.0f}% flux cut) [x{self._wisdom_log_counter}]")
         # === END V51 PATCH 1 ===
 
         # Apply the single scalar dampening factor to the entire flux field
@@ -293,8 +293,8 @@ class BoundaryConditions:
             
         Returns:
             Tuple: (drag_stress_x, drag_stress_y)
-                - drag_stress_x: X-component of drag stress (Pa = N/m²)
-                - drag_stress_y: Y-component of drag stress (Pa = N/m²)
+                - drag_stress_x: X-component of drag stress (Pa = N/mÂ²)
+                - drag_stress_y: Y-component of drag stress (Pa = N/mÂ²)
         """
         # === CONVERT WIND SPEED TO PHYSICAL UNITS (m/s) ===
         # Calculate dimensionless wind speed magnitude
@@ -328,7 +328,7 @@ class BoundaryConditions:
         C_d_dynamic = xp.minimum(C_d_dynamic, 0.03)
         
         # === CALCULATE DRAG STRESS ===
-        # τ = C_d * ρ * |V| * V  [Pa = N/m²]
+        # Ï„ = C_d * Ï * |V| * V  [Pa = N/mÂ²]
         drag_stress_x = C_d_dynamic * self.air_density * wind_speed_ms * u_surface * self.sim.U_CHAR
         drag_stress_y = C_d_dynamic * self.air_density * wind_speed_ms * v_surface * self.sim.U_CHAR
         
