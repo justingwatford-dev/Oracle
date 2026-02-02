@@ -1,363 +1,222 @@
-# Oracle V6.19 "BETAANGLE" 
+# ORACLE — Hurricane Simulation System
 
-**GPU-Accelerated Tropical Cyclone Simulation System**
+ORACLE (Ocean–atmosphere Response and Cyclone Lifecycle Emulator) is a research-grade numerical hurricane simulation framework focused on physically consistent storm structure, intensity evolution, and track dynamics. The system prioritizes diagnostic transparency and physically motivated corrections over empirical tuning.
 
-A research-grade hurricane simulation system that successfully reproduces full lifecycle tropical cyclone tracks from genesis to landfall. Built through unprecedented collaboration between a human developer and an ensemble of frontier AI models.
-
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![CUDA](https://img.shields.io/badge/CUDA-CuPy-green.svg)
-![License](https://img.shields.io/badge/License-MIT-yellow.svg)
+ORACLE is **not** an operational forecast model. It is designed for controlled experimentation, historical case study reproduction, and investigation of failure modes in tropical cyclone dynamics.
 
 ---
 
-##  Key Achievement: Hurricane Hugo (1989)
+## Design Philosophy
 
-Oracle V6.19 successfully simulated Hurricane Hugo's complete Atlantic crossing:
+ORACLE is built around three guiding principles:
 
-| Metric | Oracle V6.19 | Historical Hugo | Accuracy |
-|--------|--------------|-----------------|----------|
-| **Genesis** | 13.3°N, -20.4°W | 13.2°N, -20.0°W |  <0.5° |
-| **Peak Intensity** | 190.9 kts | 160 kts |  Cat 5 |
-| **US Landfall** | 31°N, -80°W | 33°N, -80°W |  ~2° error |
-| **Total Distance** | 4,446 nm | ~3,500 nm |  Full track |
-| **Duration** | 328.8 hours | ~288 hours |  Complete lifecycle |
+1. **Physical consistency over parameter tuning** — model behavior is corrected by identifying and fixing structural causes, not by compensating coefficients.
+2. **Diagnostics drive architecture** — unexpected behavior is treated as a signal pointing to missing or misrepresented physics.
+3. **Research transparency** — mechanisms, assumptions, and limitations are explicit and inspectable.
 
-**First successful end-to-end simulation**: Cape Verde → Caribbean → US East Coast
+The model includes multiple stability and realism safeguards ("governors") that may be disabled for experimentation, but all default configurations favor numerical and physical robustness.
 
 ---
 
-## 🔬 Technical Overview
+## Core Capabilities
 
-### Architecture
-
-Oracle uses a **pseudo-spectral Navier-Stokes solver** with potential temperature (θ′) thermodynamics:
-
-- **Grid**: 128 × 128 × 64 points (x, y, z)
-- **Resolution**: ~15 km horizontal, ~500 m vertical (with 50x boost)
-- **Boundaries**: Doubly-periodic with spectral Poisson solver
-- **GPU Acceleration**: 23× speedup via CuPy (CUDA)
-
-### Core Physics
-
-| Component | Implementation |
-|-----------|----------------|
-| **Dynamics** | Spectral Navier-Stokes with pressure projection |
-| **Thermodynamics** | Potential temperature (θ′) with WISHE feedback |
-| **Turbulence** | Smagorinsky-Lilly LES closure (Cs=0.17) |
-| **Rotation** | Cayley Transform Coriolis (unconditionally stable) |
-| **Surface Fluxes** | Bulk aerodynamic with Ck/Cd boosting |
-| **Radiation** | Newtonian relaxation (τ=24h) |
-| **Steering** | ERA5 reanalysis with annular sampling |
-| **Beta Drift** | Latitude-dependent angle (170°→135°) |
-
-### Key Innovations (V6.X Series)
-
-| Version | Innovation | Contributor |
-|---------|------------|-------------|
-| V6.4 | Radiative cooling + mean removal (SINK architecture) | Five/GPT-5 |
-| V6.7 | Proportional flux throttle | Gemini |
-| V6.14 | Viscosity fix (boost 500→50) | "Other Claude" |
-| V6.16 | Steering injection (treadmill fix) | Gemini |
-| V6.17 | Latitude-dependent beta magnitude | Claude |
-| V6.18 | Annular steering (vortex exclusion) | Kimi Swarm |
-| V6.19 | Latitude-dependent beta angle | Claude |
+* **Three-dimensional dynamical core** with potential temperature–based thermodynamics
+* **GPU acceleration** via CuPy with automatic NumPy fallback
+* **ERA5 reanalysis integration** for environmental steering and land–sea masking
+* **Adaptive Mesh Refinement (AMR)** for resolving inner-core structure
+* **Data assimilation** using grid-based Kalman filtering
+* **Storm-centric diagnostics** for intensity, structure, and track accuracy
 
 ---
 
-## Quick Start
+## Thermodynamic Framework (V6.0 THETA)
 
-### Requirements
+Beginning in Version 6.0, ORACLE prognoses **potential temperature perturbation (θ′)** rather than absolute temperature. The total potential temperature field is decomposed as:
 
-```bash
-# Core dependencies
-pip install numpy scipy matplotlib pandas cupy-cuda12x
-
-# Data retrieval
-pip install cdsapi  # For ERA5 reanalysis data
+```
+θ(x,y,z,t) = θ₀(z) + θ′(x,y,z,t)
 ```
 
-### Hardware
+Where θ₀(z) is a fixed, stably stratified reference profile and θ′ represents dynamically evolving departures.
 
-- **GPU**: NVIDIA GPU with CUDA support (8GB+ VRAM recommended)
-- **CPU**: Fallback available but ~23× slower
-- **RAM**: 16GB+ recommended
+This formulation:
 
-### Basic Usage
+* Captures adiabatic cooling implicitly
+* Produces natural buoyancy limits without artificial clamps
+* Enables periodic boundary conditions without thermodynamic drift
+* Separates background stratification from storm-induced structure
+
+Buoyancy is computed directly as:
+
+```
+b = g · θ′ / θ₀(z)
+```
+
+---
+
+## Numerical and Physical Components
+
+### Dynamical Core
+
+* FFT-based pressure projection for incompressibility
+* Semi-Lagrangian advection with optional quasi-monotonic limiting
+* Smagorinsky subgrid-scale turbulence
+* Explicit vorticity and divergence diagnostics
+
+### Surface and Boundary Physics
+
+* Bulk aerodynamic surface fluxes
+* Wind-dependent drag coefficients
+* Land–sea blending for coastal interaction
+* Wind-Induced Surface Heat Exchange (WISHE)
+
+### Adaptive Mesh Refinement
+
+* Multi-level refinement based on vorticity and pressure signals
+* Inner-core–focused resolution enhancement
+* Hard caps to prevent runaway refinement
+
+---
+
+## Environmental Data Integration
+
+ORACLE incorporates ERA5 reanalysis data to represent large-scale environmental steering and geographic context.
+
+Key features include:
+
+* Pressure-level wind retrieval
+* Deep-layer mean (DLM) steering computation
+* Annular sampling to exclude the storm core
+* Automatic fallback on data fetch failure
+
+ERA5 data are treated as environmental guidance rather than absolute truth, particularly for intense storms where reanalysis resolution may underestimate inner-core structure.
+
+---
+
+## Track and Intensity Diagnostics
+
+Storm position, motion, and intensity are monitored using a multi-field tracking system that evaluates:
+
+* Vorticity coherence
+* Pressure minima
+* Warm-core structure
+* Vertical shear alignment
+
+Storm motion arises from the combined effects of environmental steering and internal dynamics (e.g., beta drift), with configurable weighting between the two.
+
+---
+
+## Version History (Selected)
+
+### V6.23 — Deep-Layer Mean Steering Correction (February 2026)
+
+Corrects a structural steering bias affecting intense hurricanes by aligning kinematic depth with thermodynamic depth.
+
+Key changes:
+
+* Deep-layer steering integration expanded to **200–850 hPa**
+* Removal of artificial ERA5 steering attenuation
+* Increased exclusion radius to prevent vortex contamination
+* Intensity-aware beta drift behavior for major hurricanes
+
+Impact:
+
+* Elimination of unrealistic looping behavior
+* Improved recurvature timing
+* Reduced landfall track error for Category 4–5 storms
+
+---
+
+### V6.0 THETA (January 2026)
+
+* Thermodynamic reformulation using potential temperature perturbation
+* Replacement of explicit adiabatic cooling with stratification coupling
+* Physically grounded buoyancy formulation
+
+---
+
+## Installation
+
+### Dependencies
+
+```bash
+pip install numpy scipy cupy-cuda11x
+pip install xarray pandas netCDF4 cdsapi
+pip install matplotlib geojson hurdat-parser
+```
+
+### ERA5 Access
+
+ERA5 data access requires a Copernicus Climate Data Store (CDS) account and API key:
+
+```bash
+# ~/.cdsapirc
+url: https://cds.climate.copernicus.eu/api/v2
+key: <your-api-key>
+```
+
+---
+
+## Usage
+
+### Basic Example
 
 ```bash
 python world_woe_main_V6_THETA.py \
-    --storm HUGO --year 1989 --frames 500000 \
-    --resolution-boost 50 \
-    --beta-drift --beta-drift-speed 2.5 \
-    --beta-drift-lat-scale 0.05 \
-    --steering-injection \
-    --annular-steering \
-    --radiative-cooling \
-    --mean-removal \
-    --wishe-boost --wishe-boost-max 2.0
+  --storm HUGO --year 1989 --frames 50000
 ```
 
-### Full Production Command
+### Advanced Configuration
 
 ```bash
 python world_woe_main_V6_THETA.py \
-    --storm HUGO --year 1989 --frames 500000 \
-    --resolution-boost 50 \
-    --moist-floor 0.0 --updraft-only-moist \
-    --core-rh-init 0.85 \
-    --theta-prime-max 120 --theta-prime-min -120 \
-    --wishe-boost --wishe-boost-max 2.0 \
-    --wishe-wind-min 10.0 --wishe-wind-max 30.0 \
-    --beta-drift --beta-drift-speed 2.5 \
-    --beta-drift-lat-scale 0.05 \
-    --steering-injection \
-    --annular-steering \
-    --annular-inner-km 200 \
-    --annular-outer-km 600 \
-    --radiative-cooling \
-    --tau-rad 86400 \
-    --mean-removal \
-    --monotonic-advection \
-    --flux-throttle --flux-throttle-threshold 150.0 \
-    --proportional-throttle \
-    --theta-prime-soft-limit 90 --theta-prime-hard-limit 160 \
-    --moisture-floor 0.0001 \
-    --no-thermo-firewalls \
-    --no-flux-governor
+  --storm KATRINA --year 2005 \
+  --steering-injection \
+  --annular-steering \
+  --radiative-cooling \
+  --proportional-throttle
 ```
 
----
+### Unconstrained Physics Mode
 
-## Output
-
-Oracle generates detailed logs with real-time diagnostics:
-
-```
-[INFO] Frame 352500: Max Wind 190.9 kts | θ′_max: 34.55 K
-[INFO]      BUOYANCY: Raw=1.1300 → Limited=1.1300 m/s² (clamp=0.0%)
-[INFO]      UPDRAFT: Max w=76.22 m/s
-[INFO]      WISHE BOOST: max=2.00x, mean=1.13x (sustaining Ck/Cd)
-[INFO]      ERA5 DIAGNOSTICS: raw=(-2.0, -1.2) m/s, σ=(1.7, 1.6)
-[INFO]      ANNULAR STEERING: (-3.2, 2.1) m/s [r=200-600km]
-[INFO]      BETA DRIFT: 2.8 m/s @ 155° (lat=22.5°, factor=1.38x)
-[INFO]      POSITION: (28.38°N, -72.43°W)
+```bash
+python world_woe_main_V6_THETA.py --fully-unconstrained
 ```
 
-### Key Metrics
-
-- **Max Wind**: Surface wind speed (kts)
-- **θ′_max**: Maximum potential temperature perturbation
-- **WISHE BOOST**: Wind-induced surface heat exchange amplification
-- **ANNULAR STEERING**: Environmental flow from r=200-600km annulus
-- **BETA DRIFT**: Rossby wave-induced motion (speed @ angle)
-- **POSITION**: Storm center latitude/longitude
+Use unconstrained configurations cautiously; numerical instability and unphysical intensities are possible.
 
 ---
 
-## Physics Deep Dive
+## Outputs
 
-### Steering Flow System (V6.16-V6.19)
+Simulation artifacts are written to `world_woe_v6_theta_plots/`:
 
-The steering system evolved through multiple iterations to solve the "slow translation" problem:
-
-**Problem**: Simulated hurricanes moved too slowly or took unrealistic tracks.
-
-**Root Causes Identified**:
-1. Pressure solver mean removal cancelled environmental steering
-2. Domain-mean ERA5 sampling included vortex circulation (~0)
-3. Fixed beta drift angle caused premature recurvature
-
-**Solutions Implemented**:
-
-```python
-# V6.16: Steering Injection - restore ERA5 flow after pressure projection
-if steering_injection_enabled:
-    u += u_steering_nd
-    v += v_steering_nd
-
-# V6.18: Annular Sampling - exclude vortex core (r=200-600km)
-u_steer, v_steer = compute_annular_steering(u_field, v_field,
-                                             inner_radius_km=200,
-                                             outer_radius_km=600)
-
-# V6.19: Latitude-Dependent Beta Angle
-if lat < 20:
-    beta_angle = 170°  # Almost pure westward (stay in trades)
-elif lat < 25:
-    beta_angle = 170° → 135°  # Linear interpolation
-else:
-    beta_angle = 135°  # Classic NW recurvature
-```
-
-### Thermodynamic Engine
-
-Oracle uses potential temperature perturbation (θ′) as the prognostic thermodynamic variable:
-
-```
-θ′ = θ - θ_ref(z)
-
-Buoyancy: b = g × θ′ / θ₀
-Temperature: T = θ_total × (P/P₀)^κ
-```
-
-**WISHE Feedback**: Wind-Induced Surface Heat Exchange amplifies surface fluxes at high wind speeds, enabling realistic rapid intensification.
-
-### Stability Controls
-
-Multiple systems prevent numerical instability:
-
-| Control | Purpose |
-|---------|---------|
-| Proportional Throttle | Soft limit on θ′ (90K soft, 160K hard) |
-| Monotonic Advection | Gibbs oscillation limiter |
-| Radiative Cooling | τ=24h relaxation to prevent runaway heating |
-| Mean Removal | Prevents θ′ accumulation in periodic domain |
-| Cold Diffusion | Smooths extreme cold anomalies |
+* Track plots with intensity coloring
+* Surface wind field snapshots
+* GeoJSON storm tracks for GIS analysis
+* Detailed runtime logs
 
 ---
 
-## Project Structure
+## Limitations and Scope
 
-```
-OracleV6/
-├── python world_woe_main_V6_THETA.py            # Main simulation
-├── core_solver.py                               # Spectral N-S solver
-├── data_interface.py                            # ERA5/HURDAT2 interface
-├── basin.py                                     # SST/OHC climatology
-├── tracker.py                                   # Storm center tracking
-├── visualizer.py                                # Real-time plotting
-├── REFERENCES.md                                # Scientific references
-└── README.md                                    # This file
-```
+* Not suitable for operational forecasting
+* Resolution limited by GPU memory and AMR caps
+* Environmental reanalysis may underrepresent extreme intensity
+
+Results should be interpreted as **physical experiments**, not predictions.
 
 ---
 
-## 🔧 Configuration Options
+## Contributors
 
-### Steering Parameters
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--steering-injection` | off | Inject ERA5 into pressure solver |
-| `--annular-steering` | off | Sample from r=200-600km annulus |
-| `--annular-inner-km` | 200 | Inner radius of steering annulus |
-| `--annular-outer-km` | 600 | Outer radius of steering annulus |
-| `--beta-drift` | off | Enable Rossby wave drift |
-| `--beta-drift-speed` | 2.5 | Base beta speed (m/s) at 15°N |
-| `--beta-drift-lat-scale` | 0.05 | Speed increase per degree latitude |
-
-### Thermodynamic Parameters
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--wishe-boost` | off | Enable WISHE Ck/Cd amplification |
-| `--wishe-boost-max` | 2.0 | Maximum WISHE multiplier |
-| `--radiative-cooling` | off | Enable Newtonian relaxation |
-| `--tau-rad` | 86400 | Radiative timescale (seconds) |
-| `--mean-removal` | off | Remove domain-mean θ′ |
-| `--theta-prime-soft-limit` | 90 | Soft cap on θ′ (K) |
-| `--theta-prime-hard-limit` | 160 | Hard cap on θ′ (K) |
-
-### Resolution & Performance
-
-| Flag | Default | Description |
-|------|---------|-------------|
-| `--resolution-boost` | 1 | Effective resolution multiplier |
-| `--frames` | 300000 | Total integration frames |
+* Five — Architecture and diagnostic analysis
+* Gemini — Thermodynamic and steering diagnostics
+* Claude — Primary implementation
+* Justin — Testing and validation
 
 ---
 
-## 📚 References
+## License and Disclaimer
 
-### Core Physics
-
-- Emanuel, K. A. (1986). An air-sea interaction theory for tropical cyclones. *J. Atmos. Sci.*, 43(6), 585-605.
-- Smagorinsky, J. (1963). General circulation experiments with primitive equations. *Mon. Wea. Rev.*, 91(3), 99-164.
-- Chorin, A. J. (1968). Numerical solution of the Navier-Stokes equations. *Math. Comp.*, 22(104), 745-762.
-
-### Beta Drift & Steering
-
-- Direction of Hurricane Beta Drift in Horizontally Sheared Flows. *J. Atmos. Sci.*
-- Models of Tropical Cyclone Wind Distribution and Beta-Effect Propagation. *J. Atmos. Sci.*
-- WMO Severe Weather Information Centre: Tropical Cyclone Track Prediction.
-
-### Hurricane Hugo
-
-- NWS Preliminary Report: Hurricane Hugo, 10-22 September 1989.
-- A Review of Numerical Forecast Guidance for Hurricane Hugo. *J. Atmos. Sci.*
-
-See [REFERENCES.md](REFERENCES.md) for complete bibliography.
-
----
-
-## AI Ensemble Development
-
-Oracle V6 was developed through collaborative iteration with multiple AI systems, each contributing unique capabilities:
-
-| AI Model | Organization | Key Contributions |
-|----------|--------------|-------------------|
-| **Claude** | Anthropic | Implementation lead, V6.14-V6.19 development, documentation |
-| **Gemini** | Google | Mathematical analysis, Coriolis stability proof, steering forensics |
-| **Five/GPT-5** | OpenAI | Code review, V6.4 SINK architecture, bug detection |
-| **Kimi Swarm** | Moonshot AI | Annular steering recommendation, spectral separation |
-| **DeepSeek** | DeepSeek | CFD expertise, validation |
-| **Grok** | xAI | Early tracking algorithms |
-
-This represents a novel development paradigm where AI models serve as collaborative research partners rather than simple tools.
-
----
-
-## Citation
-
-```bibtex
-@software{oracle_v6_2026,
-  author = {Watford, Justin and Claude (Anthropic) and Gemini (Google) and 
-            Five (OpenAI) and Kimi Swarm (Moonshot AI) and DeepSeek},
-  title = {Oracle V6.19: GPU-Accelerated Hurricane Simulation System with 
-           Latitude-Dependent Beta Drift Steering},
-  year = {2026},
-  month = {January},
-  version = {6.19},
-  url = {https://github.com/[repository]}
-}
-```
-
-Or in text format:
-
-> Watford, J., with Claude (Anthropic), Gemini (Google), Five (OpenAI), Kimi Swarm (Moonshot AI), & DeepSeek. (2026). Oracle V6.19: GPU-Accelerated Hurricane Simulation System with Latitude-Dependent Beta Drift Steering.
-
----
-
-## 🛣️ Roadmap
-
-### Completed ✅
-- [x] Cat 5 intensity (165+ kts sustained)
-- [x] Full Atlantic crossing simulation
-- [x] US landfall accuracy (<3° error)
-- [x] Latitude-dependent steering
-- [x] Annular environmental sampling
-
-### Future Work 🔮
-- [ ] Landfall physics (terrain interaction)
-- [ ] Ocean coupling (SST feedback)
-- [ ] Ensemble forecasting
-- [ ] Real-time initialization
-- [ ] Multi-storm basin simulation
-- [ ] Machine learning SGS closure
-
----
-
-## 📄 License
-
-MIT License - See [LICENSE](LICENSE) for details.
-
----
-
-##  Acknowledgments
-
-- **NOAA Hurricane Research Division** - HURDAT2 database
-- **ECMWF** - ERA5 reanalysis data
-- **National Weather Service** - Hurricane Hugo documentation
-- The atmospheric modeling community (WRF, CM1, HWRF) for inspiration
-
----
+This project is provided for research and educational use. Outputs must not be used for emergency management or real-time decision-making. Cite appropriately when used in academic or technical work.
