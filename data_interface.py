@@ -9,6 +9,25 @@ from hurdat_parser import get_hurricane_data
 from datetime import timedelta
 import sys
 
+# === ORACLE V6.23: DEEP LAYER MEAN (DLM) STEERING FIX ===
+# 
+# GEMINI'S DIAGNOSTIC ANALYSIS:
+# "The simulation is effectively steering a deep, Category 5 vortex using
+#  shallow-to-mid-level environmental winds that do not reflect the ridging
+#  and troughing patterns of the upper troposphere."
+#
+# ROOT CAUSE: "Kinematically shallow despite being thermodynamically deep"
+#
+# V6.23 FIXES (per Gemini's recommendations):
+# 1. Added 200 hPa level - captures upper-level trough that recurves storms
+# 2. Removed 0.55 DLM scaling factor - was weakening steering by 45%!
+# 3. Increased inner radius 225km → 300km - avoids ERA5 vortex contamination
+#
+# Previous versions fetched 850-300 hPa but:
+# - Missing 200 hPa meant missing the westerly trough steering
+# - 0.55 factor artificially weakened DLM, making beta drift relatively too strong
+# - Result: Katrina steered south to 21°N instead of recurving at 25°N
+#
 # === ORACLE V60.3: NaN-SAFE LANDFALL PHYSICS ===
 # V60.2: Two-request CDS fix (pressure-levels + single-levels)
 # V60.3: NaN handling for complex coastlines (Caribbean islands crash fix)
@@ -127,11 +146,14 @@ class DataInterface:
         # Must fetch from separate CDS products
         
         # REQUEST 1: Pressure-level winds
+        # V6.23 DLM FIX: Added 200 hPa to capture upper-level troughs (Gemini's Analysis)
+        # The approaching trough that steered Katrina north was at 200-300 hPa!
+        # Without 200 hPa, we miss the critical upper-level steering that recurves storms.
         winds_request = {
             'product_type': 'reanalysis',
             'format': 'netcdf',
             'variable': ['u_component_of_wind', 'v_component_of_wind'],
-            'pressure_level': ['300', '400', '500', '600', '700', '850'], 
+            'pressure_level': ['200', '300', '400', '500', '600', '700', '850'], 
             'year': date_time.strftime('%Y'),
             'month': date_time.strftime('%m'),
             'day': date_time.strftime('%d'),
@@ -228,12 +250,19 @@ class DataInterface:
                     u_mean = -np.trapz(u_profile_clean, log_p) / (log_p[0] - log_p[-1])
                     v_mean = -np.trapz(v_profile_clean, log_p) / (log_p[0] - log_p[-1])
                     
-                    u_integrated_ms[i, j] = u_mean * 0.55
-                    v_integrated_ms[i, j] = v_mean * 0.55
+                    # V6.23 DLM FIX: Removed artificial 0.55 scaling factor
+                    # Previous versions had: u_mean * 0.55, which weakened steering by 45%!
+                    # This made beta drift relatively too strong, causing southward bias.
+                    # Now using full DLM strength (1.0) as Gemini's analysis recommended.
+                    dlm_scale = getattr(self.sim, 'dlm_scale', 1.0)  # Configurable, default full strength
+                    u_integrated_ms[i, j] = u_mean * dlm_scale
+                    v_integrated_ms[i, j] = v_mean * dlm_scale
             
-            # === V5.1 PATCH: KM-BASED DOUGHNUT FILTER ===
-            # Five's Recommendation: 225 km radius (not 40% fraction)
-            # Reason: Physical size is more robust than grid-dependent fraction 
+            # === V6.23 PATCH: KM-BASED DOUGHNUT FILTER ===
+            # V5.1: Five's Recommendation: 225 km radius
+            # V6.23: Gemini's Analysis: Increased to 300 km to avoid ERA5 vortex contamination
+            # Reason: ERA5 resolution (0.25°) can't resolve intense inner-core winds,
+            #         so averaging too close contaminates steering with model's own circulation
               
             # Calculate physical distance
             domain_km = 2000.0  # Physical domain size in km
@@ -249,8 +278,10 @@ class DataInterface:
             # Convert to km
             radius_km = radius_cells * cell_km
             
-            # Apply 225 km threshold (typical hurricane core size)
-            hole_mask = radius_km < 225.0  # <-- NEW (KM-BASED)
+            # V6.23: Apply 300 km threshold (was 225 km)
+            # Prevents inner-core contamination from ERA5's coarse representation
+            inner_radius_km = getattr(self.sim, 'dlm_inner_radius_km', 300.0)
+            hole_mask = radius_km < inner_radius_km
             doughnut_mask = ~hole_mask
             
             if np.any(doughnut_mask):
