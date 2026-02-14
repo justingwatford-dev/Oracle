@@ -136,9 +136,36 @@ class CoreSolver:
         departure_y = self.grid_points[1] - v * self.sim.dt_solver / self.sim.dy
         departure_z = self.grid_points[2] - w * self.sim.dt_solver / self.sim.dz
         
+        # =====================================================================
+        # V7.1 FIX: Z-CLAMP — BREAK THE SPECTRAL SHORT-CIRCUIT
+        # =====================================================================
+        # Gemini Deep Research diagnosis: The FFT basis e^(ikz) enforces
+        # f(z) = f(z+Lz), topologically connecting the moist boundary layer
+        # (18 g/kg) directly to the dry stratosphere (0.006 g/kg).
+        #
+        # With mode='wrap', any updraft at Level 0 samples Level 15 (dry),
+        # and any subsidence at Level 15 samples Level 0 (moist). This
+        # homogenizes the moisture column to its mean (~1.8 g/kg) in ~100
+        # frames — the "Moisture Starvation" crash seen in all four V7.0 runs.
+        #
+        # Fix: Clamp z departure points to [0, nz-1] BEFORE interpolation.
+        # x,y remain periodic (wrap) for the horizontal domain.
+        # z now has effective rigid-lid / ocean-floor boundaries:
+        #   - Parcels "below" z=0 see surface values (ocean source)
+        #   - Parcels "above" z=nz-1 see tropopause values (dry lid)
+        #
+        # This is the semi-Lagrangian equivalent of Gemini's recommended
+        # "CLAMP (Nearest Neighbor)" boundary mode for vertical interpolation.
+        # The full DST/DCT hybrid solver is deferred to V8.0.
+        #
+        # Reference: Gemini Remediation Report §3.1.1, §6.2
+        # =====================================================================
+        departure_z = xp.clip(departure_z, 0.0, self.sim.nz - 1.0)
+        
         departure_points = xp.array([departure_x, departure_y, departure_z])
         
         # V5.2: Configurable interpolation (order set by simulation class, default=3)
+        # mode='wrap' now only affects x,y (z is pre-clamped above)
         f_advected = ndimage.map_coordinates(f, departure_points, order=getattr(self, "advection_order", 3), mode='wrap')
         
         # =====================================================================
