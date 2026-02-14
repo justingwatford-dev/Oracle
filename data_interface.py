@@ -9,6 +9,33 @@ from hurdat_parser import get_hurricane_data
 from datetime import timedelta
 import sys
 
+# === ORACLE V6.26: ADAPTIVE DLM + LAND FIXES (Gemini Deep Dive) ===
+#
+# V6.26 FIXES (Gemini's "Double Beta" and "200 hPa Hook" Analysis):
+# 
+# 1. ADAPTIVE DLM WEIGHTING:
+#    - Over ocean: 200 hPa = 4x, 300 hPa = 2x (capture trough for recurvature)
+#    - Over land: 850 hPa = 2x, 700 hPa = 1.5x (follow terrain, not jet stream)
+#    - Coastal: Linear interpolation between ocean and land profiles
+#
+# 2. Physics: Post-landfall vortex shallows (bottom-up spin-down)
+#    The V6.25 4x weight on 200 hPa caused eastward bias over land
+#    because jet stream dominates upper levels while surface is anchored.
+#
+# === ORACLE V6.25: WEIGHTED DLM + BETA DRIFT FIX (Gemini's Forensic Analysis) ===
+#
+# ROOT CAUSE IDENTIFIED: "Unused Weights" Bug!
+# The weights array was DEFINED but NEVER APPLIED to the trapz integration.
+# This caused the upper-level trough (200 hPa) to be completely ignored,
+# leaving steering dominated by lower-level easterlies → Texas drift!
+#
+# V6.25 FIXES:
+# 1. ACTUALLY USE WEIGHTS in trapz: u_profile * weights
+# 2. Upper-level weighting: 200 hPa = 4.0x, 300 hPa = 2.0x
+# 3. Proper weighted average: ∫(u*w)dp / ∫(w)dp
+#
+# Expected result: Upper trough captured → northward steering component restored
+#
 # === ORACLE V6.23: DEEP LAYER MEAN (DLM) STEERING FIX ===
 # 
 # GEMINI'S DIAGNOSTIC ANALYSIS:
@@ -220,15 +247,174 @@ class DataInterface:
             
             pressure_levels_hpa = actual_pressure_levels_pa / 100.0
 
-            # Weights: Higher for 300-700 hPa
-            weights = np.ones_like(pressure_levels_hpa, dtype=np.float64)
+            # =====================================================================
+            # V7.2 FIX: LATITUDE-ADAPTIVE DLM WEIGHTING
+            # =====================================================================
+            # Problem History:
+            #   V6.25: 4× weight on 200 hPa captured recurvature troughs (Katrina)
+            #   V6.26: Reduced 200 hPa weight over LAND (post-landfall eastward bias)
+            #   V7.2:  Reduced 200 hPa weight in deep TROPICS (pre-recurvature bias)
+            #
+            # New Problem (exposed by V7.1.2 thermodynamic fix):
+            #   For Cape Verde storms at 15-20°N, 200 hPa has strong WESTERLIES
+            #   from the tropical upper anticyclone outflow. With 4× weight, these
+            #   overwhelm the 500-700 hPa EASTERLIES that actually steer the storm.
+            #   Hugo's DLM reversed to eastward on Sept 12 at 20°N, 32°W — pushing
+            #   the storm back toward Africa. 5,550 km track error.
+            #
+            # Physics: TC steering layer depth depends on latitude:
+            #   Deep tropics (< 20°N): 500-700 hPa easterlies steer. Upper anti-
+            #     cyclone outflow at 200 hPa is opposite the storm motion.
+            #   Subtropics (20-28°N): Steering layer deepens as storm encounters
+            #     mid-latitude troughs. 200 hPa becomes increasingly relevant.
+            #   Mid-latitudes (> 28°N): 200-300 hPa troughs dominate recurvature.
+            #     Original V6.25 weighting is correct here.
+            #
+            # FIX: Three weight profiles blended by latitude AND land fraction:
+            #   TROPICAL OCEAN (lat < 20°N): Mid-level dominant
+            #   EXTRATROPICAL OCEAN (lat > 28°N): Upper-level dominant (V6.25)
+            #   LAND: Lower-level dominant (V6.26, unchanged)
+            # =====================================================================
+            
+            # Get storm latitude for DLM layer selection
+            storm_lat = abs(getattr(self.sim, 'current_center_lat', 20.0))
+            
+            # Get land fraction at domain center
+            land_frac_center = 0.0  # Default to ocean
+            if hasattr(self, 'land_fraction') and self.land_fraction is not None:
+                cx, cy = self.sim.nx // 2, self.sim.ny // 2
+                land_frac_center = np.mean(self.land_fraction[max(0,cx-5):cx+5, max(0,cy-5):cy+5])
+            
+            # Define three weight profiles — COMPONENT-SPECIFIC for tropics
+            # =====================================================================
+            # V7.2.1: COMPONENT-SPECIFIC TROPICAL DLM WEIGHTS
+            # 
+            # Physics: In the deep tropics, zonal and meridional steering come from
+            # different layers:
+            #   u-wind: 500-700 hPa trade easterlies steer westward. 200 hPa has
+            #           anticyclone WESTERLIES that oppose the motion — must suppress.
+            #   v-wind: Northward drift has a legitimate 200 hPa component from the
+            #           subtropical ridge position (Hadley circulation). Suppressing
+            #           200 hPa kills the northward signal → storm drifts south.
+            #
+            # Evidence (Five's analysis of Hugo run):
+            #   Sept 12 02:24: v_200=+9.2 (N), v_500=-6.2 (S), v_850=-3.8 (S)
+            #   With 0.5× on 200 hPa: southward wins → storm pushed to 11.6°N
+            #   Historical Hugo: should be ~16°N at that longitude
+            #
+            # Fix: Separate weight profiles for u and v in tropical regime.
+            #   Extratropical and land weights are component-identical (same physics).
+            # =====================================================================
+            weights_tropical_u = np.ones_like(pressure_levels_hpa, dtype=np.float64)
+            weights_tropical_v = np.ones_like(pressure_levels_hpa, dtype=np.float64)
+            weights_extratropical = np.ones_like(pressure_levels_hpa, dtype=np.float64)
+            weights_land = np.ones_like(pressure_levels_hpa, dtype=np.float64)
+            
             for i, p_level in enumerate(pressure_levels_hpa):
-                if 300 <= p_level <= 700:
-                    weights[i] = 2.0 
+                # TROPICAL OCEAN — U-WIND: suppress 200 hPa anticyclone westerlies
+                if p_level <= 200:
+                    weights_tropical_u[i] = 0.5
+                elif p_level <= 300:
+                    weights_tropical_u[i] = 1.0
+                elif p_level <= 400:
+                    weights_tropical_u[i] = 1.5
+                elif p_level <= 600:
+                    weights_tropical_u[i] = 2.5
+                elif p_level <= 700:
+                    weights_tropical_u[i] = 2.0
+                else:
+                    weights_tropical_u[i] = 1.0
+                
+                # TROPICAL OCEAN — V-WIND: Partial mid-level emphasis
+                # Physics: Unlike u-wind, the meridional signal has legitimate
+                # contributions at both upper and mid levels. 200 hPa subtropical
+                # ridge provides northward drift; 500-700 hPa mid-level flow
+                # provides the cross-track component. Both matter for v.
+                #
+                # Empirical calibration (Hugo 1989, two anchor points):
+                #   v using u-weights (200=0.5, 500=2.5) → 11.6°N (4.4° too S)
+                #   v uniform (200=1.5, 500=1.5)         → 21.8°N (5.8° too N)
+                #   Interpolated (t=0.43) for 16°N target:
+                #     200=1.0, 500=2.0 — less 200 hPa suppression, moderate
+                #     mid-level emphasis retained as southward counterweight
+                if p_level <= 200:
+                    weights_tropical_v[i] = 1.0   # Not suppressed (vs 0.5 for u)
+                elif p_level <= 300:
+                    weights_tropical_v[i] = 1.0
+                elif p_level <= 400:
+                    weights_tropical_v[i] = 1.5
+                elif p_level <= 600:
+                    weights_tropical_v[i] = 2.0   # Mid-level anchor (vs 2.5 for u)
+                elif p_level <= 700:
+                    weights_tropical_v[i] = 2.0
+                else:
+                    weights_tropical_v[i] = 1.0
+                
+                # EXTRATROPICAL OCEAN: Upper-level trough steering (V6.25)
+                # Same for both components — upper-level troughs steer u AND v
+                if p_level <= 200:
+                    weights_extratropical[i] = 4.0
+                elif p_level <= 300:
+                    weights_extratropical[i] = 2.0
+                else:
+                    weights_extratropical[i] = 1.0
+                
+                # LAND: Lower-level terrain anchoring (V6.26, unchanged)
+                if p_level >= 850:
+                    weights_land[i] = 2.0
+                elif p_level >= 700:
+                    weights_land[i] = 1.5
+                else:
+                    weights_land[i] = 1.0
+            
+            # Step 1: Blend tropical ↔ extratropical by latitude (separate u/v)
+            LAT_TROPICAL = 20.0
+            LAT_EXTRATROPICAL = 28.0
+            
+            if storm_lat < LAT_TROPICAL:
+                weights_ocean_u = weights_tropical_u
+                weights_ocean_v = weights_tropical_v
+                lat_mode = "TROPICAL"
+            elif storm_lat > LAT_EXTRATROPICAL:
+                weights_ocean_u = weights_extratropical
+                weights_ocean_v = weights_extratropical
+                lat_mode = "EXTRATROPICAL"
+            else:
+                t_lat = (storm_lat - LAT_TROPICAL) / (LAT_EXTRATROPICAL - LAT_TROPICAL)
+                weights_ocean_u = (1.0 - t_lat) * weights_tropical_u + t_lat * weights_extratropical
+                weights_ocean_v = (1.0 - t_lat) * weights_tropical_v + t_lat * weights_extratropical
+                lat_mode = f"TRANSITION (t={t_lat:.2f})"
+            
+            # Step 2: Blend ocean ↔ land by land fraction
+            if land_frac_center < 0.3:
+                weights_u = weights_ocean_u
+                weights_v = weights_ocean_v
+                weight_mode = f"OCEAN-{lat_mode}"
+            elif land_frac_center > 0.5:
+                weights_u = weights_land
+                weights_v = weights_land
+                weight_mode = "LAND"
+            else:
+                t = (land_frac_center - 0.3) / 0.2
+                weights_u = (1.0 - t) * weights_ocean_u + t * weights_land
+                weights_v = (1.0 - t) * weights_ocean_v + t * weights_land
+                weight_mode = f"COASTAL-{lat_mode} (t={t:.2f})"
+            
+            # Diagnostic
+            wu200 = weights_u[pressure_levels_hpa <= 200]
+            wv200 = weights_v[pressure_levels_hpa <= 200]
+            wu500 = weights_u[(pressure_levels_hpa >= 450) & (pressure_levels_hpa <= 550)]
+            wu200_str = f"{wu200[0]:.1f}" if len(wu200) > 0 else "N/A"
+            wv200_str = f"{wv200[0]:.1f}" if len(wv200) > 0 else "N/A"
+            wu500_str = f"{wu500[0]:.1f}" if len(wu500) > 0 else "N/A"
+            print(f"     🎯 V7.2.2 DLM: lat={storm_lat:.1f}°N land={land_frac_center:.2f} → {weight_mode}")
+            print(f"        U-weights: 200hPa={wu200_str}x, 500hPa={wu500_str}x | V-weights: 200hPa={wv200_str}x")
 
-            # Sort by pressure
+            # Sort by pressure (and sort weights to match!)
             sort_indices = np.argsort(pressure_levels_hpa)
             sorted_pressure_levels = pressure_levels_hpa[sort_indices]
+            sorted_weights_u = weights_u[sort_indices]
+            sorted_weights_v = weights_v[sort_indices]
             sorted_u_levels = u_levels[sort_indices, :, :]
             sorted_v_levels = v_levels[sort_indices, :, :]
             
@@ -246,15 +432,31 @@ class DataInterface:
                     if not np.all(np.isfinite(u_profile_clean)): u_profile_clean = np.zeros_like(u_profile_clean)
                     if not np.all(np.isfinite(v_profile_clean)): v_profile_clean = np.zeros_like(v_profile_clean)
                     
+                    # =====================================================================
+                    # V7.2.1: Component-specific weighted integration
+                    # u-wind uses weights_u (suppressed 200 hPa in tropics)
+                    # v-wind uses weights_v (legitimate 200 hPa northward signal)
+                    # =====================================================================
                     log_p = np.log(sorted_pressure_levels)
-                    u_mean = -np.trapz(u_profile_clean, log_p) / (log_p[0] - log_p[-1])
-                    v_mean = -np.trapz(v_profile_clean, log_p) / (log_p[0] - log_p[-1])
                     
-                    # V6.23 DLM FIX: Removed artificial 0.55 scaling factor
-                    # Previous versions had: u_mean * 0.55, which weakened steering by 45%!
-                    # This made beta drift relatively too strong, causing southward bias.
-                    # Now using full DLM strength (1.0) as Gemini's analysis recommended.
-                    dlm_scale = getattr(self.sim, 'dlm_scale', 1.0)  # Configurable, default full strength
+                    # V7.2.1: Diagnostic with both weight sets
+                    if i == self.sim.nx // 2 and j == self.sim.ny // 2:
+                        print(f"     📊 DLM DIAGNOSTIC (center cell):")
+                        for k, (plev, u_lev, v_lev, wu, wv) in enumerate(zip(sorted_pressure_levels, u_profile_clean, v_profile_clean, sorted_weights_u, sorted_weights_v)):
+                            w_note = f"wu={wu:.1f},wv={wv:.1f}" if abs(wu - wv) > 0.01 else f"w={wu:.1f}"
+                            print(f"        {plev:.0f} hPa: u={u_lev:+.1f}, v={v_lev:+.1f} m/s ({w_note})")
+                    
+                    # Separate weighted integration for u and v
+                    u_mean = np.trapz(u_profile_clean * sorted_weights_u, log_p) / np.trapz(sorted_weights_u, log_p)
+                    v_mean = np.trapz(v_profile_clean * sorted_weights_v, log_p) / np.trapz(sorted_weights_v, log_p)
+                    
+                    # V6.25.1: Log weighted result at center
+                    if i == self.sim.nx // 2 and j == self.sim.ny // 2:
+                        print(f"        ────────────────────────────────────")
+                        print(f"        WEIGHTED DLM: u={u_mean:+.1f}, v={v_mean:+.1f} m/s")
+                    
+                    # V6.23 DLM scale (kept for compatibility)
+                    dlm_scale = getattr(self.sim, 'dlm_scale', 1.0)
                     u_integrated_ms[i, j] = u_mean * dlm_scale
                     v_integrated_ms[i, j] = v_mean * dlm_scale
             
