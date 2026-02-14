@@ -58,14 +58,23 @@ class BoundaryConditions:
         # === PHYSICAL CONSTANTS ===
         # === ENSEMBLE: Progressive Equilibrium - Sensible Flux ===
         # Heat exchange coefficient (dimensionless)
-        # C_h = 0.0011 provides ~100 W/mÂ² sensible heat (observed reality)
+        # C_h = 0.0011 provides ~100 W/m² sensible heat (observed reality)
         # We set a *base* value which will be throttled by the Governor Protocol
         self.C_h_base = 0.0018  # ENSEMBLE FIX (per Grok): "Major Cruise" sensible heat
         
-        # Air density at sea level (kg/mÂ³)
+        # Air density at sea level (kg/m³)
         self.air_density = 1.225
         
-        print("BoundaryConditions initialized with SI-compliant flux calculations.")
+        # === V7.0: EFFECTIVE FLUX DEPTH (Gemini forensic fix) ===
+        # Surface fluxes physically moisten a thin boundary layer skin (~50-200m),
+        # NOT the entire grid cell (dz=1250m at nz=16). Without this, fluxes are
+        # diluted by 12.5x, producing only 2.5% of the needed moisture replacement.
+        # This parameter decouples the flux depth from the grid resolution,
+        # parameterizing both thin-layer concentration AND sub-grid BL mixing.
+        self.flux_depth_m = getattr(sim_instance, 'flux_depth_m', 100.0)
+        
+        print(f"BoundaryConditions initialized with SI-compliant flux calculations.")
+        print(f"  → Effective flux depth: {self.flux_depth_m:.0f}m (grid dz: {sim_instance.dz_physical:.0f}m)")
 
     def calculate_saturation_humidity(self, T_celsius, P_pascals=101325):
         """
@@ -269,10 +278,13 @@ class BoundaryConditions:
 
         # === APPLY FLUXES TO SURFACE LAYER ===
         dt_physical_s = self.sim.dt_solver * self.sim.T_CHAR
-        dz_physical_m = self.sim.domain_scaler.dimensionless_to_physical_z(self.sim.dz)
+        # V7.0: Use effective flux depth instead of grid dz.
+        # Grid dz (1250m) dilutes surface fluxes by 12.5x. Real BL skin layer
+        # is ~50-200m. This parameterizes thin-layer concentration + sub-grid mixing.
+        dz_flux_m = self.flux_depth_m
 
-        q[:, :, 0] += q_flux * dt_physical_s / (dz_physical_m * self.air_density)
-        T[:, :, 0] += h_flux * dt_physical_s / (dz_physical_m * self.air_density * self.sim.c_p)
+        q[:, :, 0] += q_flux * dt_physical_s / (dz_flux_m * self.air_density)
+        T[:, :, 0] += h_flux * dt_physical_s / (dz_flux_m * self.air_density * self.sim.c_p)
         
         # Return the scalar dampening_factor for diagnostics
         return q, T, float(xp.mean(q_flux)), float(xp.mean(h_flux)), dampening_factor
