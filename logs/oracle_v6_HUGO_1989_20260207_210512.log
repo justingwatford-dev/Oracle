@@ -1,0 +1,2688 @@
+[LOGGING] Output being saved to: oracle_v6_HUGO_1989_20260207_210512.log
+[LOGGING] Started at: 2026-02-07 21:05:12
+
+================================================================================
+  ORACLE V6.3 'SUSTAIN' - INTENSITY MAINTENANCE FIX
+================================================================================
+  Storm: HUGO (1989) | Frames: 25,000
+
+  ★★★ V6.2: THREE INHIBITORS ADDRESSED (Five + Gemini) ★★★
+
+  PRIORITY 1 - TURBULENCE ('Molasses Atmosphere'):
+    • Resolution Boost: 1500 (default=1500)
+
+  PRIORITY 2 - STRATIFICATION ('Buoyancy Tax'):
+    • Moist Floor: 0.30 (default=0.3)
+    • Updraft-Only: ❌ NO
+
+  PRIORITY 3 - MOISTURE ('Premature Saturation'):
+    • Core RH Init: 95% (default=95%)
+
+  θ′ STABILITY BOUNDS:
+    • Max θ′: 50 K (default=50)
+    • Min θ′: -50 K (default=-50)
+
+  ★★★ V6.3 SUSTAIN: INTENSITY MAINTENANCE (Gemini Fix) ★★★
+
+  WISHE BOOSTING (Ck/Cd Correction):
+    • Enabled: ❌ NO
+
+  ★★★ V6.24 DLM + H3+ HYSTERESIS (Prevents Florida Weakening Dip) ★★★
+
+  DLM STEERING (Root Cause Fix - V6.23):
+    • 🌍 Pressure Levels: 200, 300, 400, 500, 600, 700, 850 hPa
+    • 🔺 Added 200 hPa (captures upper trough for recurvature!)
+    • ⚡ Removed 0.55 scaling (was weakening DLM by 45%!)
+    • 🔘 Inner radius 300km (was 225km, avoids ERA5 contamination)
+
+  BETA DRIFT (Physically Correct + Intensity-Aware + Hysteresis):
+    • Enabled: ❌ NO
+
+  ★★★ V6.26.4 'RECURVE-B' - LATITUDE-AWARE STEERING ASSIST ★★★
+
+  RECURVE-B ASSIST (Fixes V6.26.3 Yucatan Escape Bug):
+    • Problem: V6.26.3 lat>24° gate let storm fall to 18.79°N (Yucatan!)
+    • Solution: Remove gate, add latitude-dependent boost instead
+    • Physics: Storm that drifts south needs MORE correction, not less
+    • west_factor: 0 at -88°W → 1.0 at -94°W
+    • lat_factor: 0 at 26°N → 1.0 at 22°N (emergency boost)
+    • Combined: nudge = west × 3.0 × (1 + lat_factor)
+    • Result: Up to 6 m/s assist when far west AND far south
+
+  ADAPTIVE DLM WEIGHTING (Fixes Post-Landfall Eastward Bias):
+    • Ocean: 200 hPa = 4x, 300 hPa = 2x (capture trough)
+    • Land: 850 hPa = 2x, 700 hPa = 1.5x (follow terrain)
+    • 🎯 Vortex shallows over land → lower-level steering dominates
+
+  HIGH-LATITUDE THERMODYNAMIC DAMPING (V6.26.1 Enhanced):
+    • Damping begins at 30°N (was 35°N - EARLIER)
+    • e-folding scale: 7° (was 10° - STEEPER)
+    • 🧊 Prevents 'Zombie Thermodynamics' — tropical θ′ at high latitudes
+    • Logging: Threshold crossings only (fixes 9MB spam!)
+
+  θ′ RELAXATION (V6.26.1 NEW - Gemini Fix #6):
+    • Active north of 40°N
+    • τ = 6 hours (drains ~16%/hour of accumulated tropical energy)
+    • 🧟 Actively exorcises 'Zombie Thermodynamics'
+
+  STEERING FLOOR + CONTINUOUS INTEGRATION:
+    • Floor Enabled: ✅ YES
+    • Floor: 3.0 m/s (~6 kts)
+    • V6.22 Direction Fallback: Uses last known direction if near-zero
+    • V6.22 Integration: Every 100 frames (was 3600)
+
+  ★★★ V6.16 STEERING INJECTION: PRESSURE SOLVER FIX (Gemini) ★★★
+
+  STEERING INJECTION (Treadmill Fix):
+    • Enabled: ❌ NO
+
+  ★★★ V6.18 ANNULAR STEERING: VORTEX CONTAMINATION FIX (Kimi Swarm) ★★★
+
+  ANNULAR STEERING (Exclude Vortex Core):
+    • Enabled: ❌ NO
+
+  ★★★ V6.20 VISUALIZATION ★★★
+
+  PLOTTING:
+    • Track Plot: ❌ NO
+    • Wind Plots: ❌ NO
+    • Output Dir: world_woe_v6_theta_plots/
+
+  COLD ANOMALY DIFFUSION (Anti-Crash):
+    • Enabled: ❌ NO
+
+  ★★★ V6.4 SINK: θ′ ACCUMULATION FIX (Five's Analysis) ★★★
+
+  RADIATIVE COOLING (Newtonian relaxation):
+    • Enabled: ❌ NO
+
+  MEAN REMOVAL (Level-wise):
+    • Enabled: ❌ NO
+
+  ENVIRONMENT RELAXATION (Ventilation):
+    • Enabled: ❌ NO
+
+  ★★★ V6.5 NUMERICS: STABILITY FIX (Gemini Analysis) ★★★
+
+  MONOTONIC ADVECTION (Bermejo Fix):
+    • Enabled: ❌ NO
+
+  FLUX THROTTLE (Runaway Prevention):
+    • Enabled: ❌ NO
+
+  ★★★ V6.7 PROPORTIONAL: BALANCE FIX (Gemini Analysis) ★★★
+
+  MOISTURE FLOOR:
+    • Floor: 0.10 g/kg
+    • ⚡ Prevents negative specific humidity
+
+  GOVERNOR STATUS:
+    • Flux Governor:     ✅ Active
+    • WISDOM Dampening:  ✅ Active
+    • Velocity Governor: ✅ Active
+    • Thermo Firewalls:  ✅ Active
+
+  ★★★ V7.0 BETTS-MILLER: CONVECTIVE ADJUSTMENT ★★★
+
+  BETTS-MILLER RELAXED CONVECTION:
+    • Enabled: ✅ YES (replaces instant saturation)
+    • τ_BM: 900 seconds (15 minutes)
+    • Reference RH: 90%
+    • BL Taper: 200m → 2200m (power=1.0)
+    • ⚡ Senses full column including BL (no hard gate)
+    • ⚡ Tendencies tapered near surface to protect BL moisture
+    • 🌊 Flux Depth: 100m (decoupled from grid dz)
+
+  ★★★ V7.1: SPECTRAL SHORT-CIRCUIT FIX (Gemini Deep Research) ★★★
+
+  Z-BOUNDARY REMEDIATION:
+    • 🔧 Advection z-clamp: departure_z ∈ [0, nz-1] (was periodic wrap)
+    •    Surface parcels see ocean (not stratosphere)
+    •    Tropopause parcels see dry lid (not surface moisture)
+    • 🧊 Vertical sponge: top 20% domain, cos² Rayleigh damping
+    •    w → 0, θ′ → 0, q → q_ref (gravity wave absorption)
+    • 🌊 Far-field moisture relaxation: τ=12h, r > 400-600km
+    •    Prevents environmental dryout over long integrations
+  HYPOTHESIS: WISHE boost should SUSTAIN intensity after peak!
+================================================================================
+
+[INFO] V6 THETA: Reference state initialized
+[INFO]    θ₀(z=0) = 300.0 K
+[INFO]    θ₀(z=10km) = 342.7 K
+[INFO]    θ₀(z=20km) = 380.0 K
+[INFO]    dθ₀/dz = 4.00 K/km
+[INFO]    💧 Moisture profile: surface=18.0 g/kg, 5km=2.13 g/kg, top=0.0060 g/kg
+[INFO]    🌊 Initializing basin environment...
+[BasinEnvironment] Initializing V5 Static North Atlantic Basin...
+  -> Grid Size: 900 x 600 points
+  -> Building Climatology Layers...
+     SST Range: 10.0Â°C to 29.0Â°C
+     OHC Range: 20.0 to 170.0 kJ/cmÂ²
+  -> Basin Initialized. Ready for sampling.
+================================================================================
+StormTracker V50.3 'OPUS'S COOLDOWN FIX' Initialized
+================================================================================
+  -> V50 Dual Lock Architecture: PRESERVED
+     • lock_struct (Structural Health): Chimera Coherence
+     • lock_track (Navigation Accuracy): Sigmoid of offset
+  -> V50.1 PATCH 1: Confusion → lock_struct (not lock_score)
+  -> V50.1 PATCH 2: Corner-Safe Rejection (edge margin = nx/3)
+  -> V50.1 PATCH 3: Sigmoid relaxed (k=0.15, was 0.5)
+  -> V50.2 PATCH 4: Hysteresis - breaks persistent edge lock
+  -> V50.3 PATCH 5: Cooldown - forces anchor to center (Opus's fix)
+  -> Credit: Grok + Gemini + Claude + Opus (the cousin!)
+================================================================================
+[INFO]    ⚠️ No oracle track - using ERA5 steering only
+[INFO]    📍 Genesis: (13.2°N, -20.0°W)
+DataInterface Initialized for Project Oracle (ERA5 Historical).
+  -> ERA5 winds will be converted: m/s → dimensionless
+Parsing 'hurdat2.txt' for HUGO (1989)...
+  -> Found data for HUGO (1989). Reading 64 records.
+  -> Successfully created DataFrame with 64 records.
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 12:00...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-6.4, v=-1.0 m/s (weight=4.0)
+        300 hPa: u=-5.2, v=+0.7 m/s (weight=2.0)
+        400 hPa: u=+2.5, v=+4.0 m/s (weight=1.0)
+        500 hPa: u=+1.2, v=+3.4 m/s (weight=1.0)
+        600 hPa: u=-2.1, v=+1.6 m/s (weight=1.0)
+        700 hPa: u=-5.4, v=+0.1 m/s (weight=1.0)
+        850 hPa: u=-8.6, v=-1.8 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-4.2, v=+0.6 m/s
+     🏝️ Land Fraction processed: 0.0% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]    ⚙️ Initializing solver...
+BoundaryConditions initialized with SI-compliant flux calculations.
+  → Effective flux depth: 100m (grid dz: 1250m)
+[INFO]    🧊 Vertical sponge: top 3 levels, strength=0.05
+[INFO]    🌊 Moisture reference profile stored for far-field relaxation
+Visualizer initialized with Diagnostic Overlay capabilities.
+  -> All velocity fields will be converted to physical units for display
+[INFO]    🌀 Initializing WARM-CORE vortex (θ′ formulation)...
+[INFO]    θ′ warm core: max=4.99 K
+[INFO]    💧 Core RH initialized to 95%
+[INFO]    📊 Initial Max Wind: 25.0 m/s (48.6 kts)
+[INFO]    📊 Initial θ′ range: [0.00, 4.99] K
+[INFO]    📊 Initial T range: [-79.2, 30.1] °C
+[INFO]    ✅ V6.0 'THETA' Ready!
+[INFO] 
+[INFO] ============================================================
+[INFO] --- V6.0 THETA SIMULATION START ---
+[INFO] --- Frames: 25,000 ---
+[INFO] --- θ′ THERMODYNAMICS + PHYSICAL LIMITS ---
+[INFO] ============================================================
+[INFO] 
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=48.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.83, Track=0.82, Offset=0.0, COH=0.826
+    METRICS: Pmin:-0.00, Wmax:48.4 kts (TS), LOCK:82.29%, COH:0.826
+[INFO] [INFO] Frame 0: Max Wind 48.4 kts | θ′_max: 4.99 K
+[INFO]     🔥 BUOYANCY: Raw=0.1499 → Limited=0.1456 m/s² (clamp=2.9%)
+[INFO]     🌬️ UPDRAFT: Max w=0.26 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=4.99K, T_core=-8.1°C (Δ=+4.0)
+[INFO]     📉 STRATIFICATION: eff=1.00, eff_updraft=1.00 (reduction: 0%)
+[INFO]     🌀 NU_TURB: max=0.0864, mean=0.0002 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=5.23 g/kg (q_sat=24.2, q_sfc=19.0)
+[INFO]     💦 MOISTURE FLOOR: 98304 cells clamped
+[INFO] 🔍 V6 DIAGNOSTIC: θ′ mean=-0.017 K
+[INFO] 🔍 V6 DIAGNOSTIC: θ′ range=[-3.71, 0.11] K
+[INFO] 🔍 V6 DIAGNOSTIC: T (diagnostic) mean=-28.7°C
+[INFO] 🔍 V6 DIAGNOSTIC: SST mean=28.5°C
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.56, Track=0.82, Offset=0.0, COH=0.560
+    METRICS: Pmin:-0.00, Wmax:35.7 kts (Potential), LOCK:82.28%, COH:0.560
+[INFO] [INFO] Frame 100: Max Wind 35.7 kts | θ′_max: 0.10 K
+[INFO]     🔥 BUOYANCY: Raw=0.0999 → Limited=0.0986 m/s² (clamp=1.3%)
+[INFO]     🌬️ UPDRAFT: Max w=6.53 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.57, Track=0.82, Offset=0.0, COH=0.566
+    METRICS: Pmin:-0.00, Wmax:32.5 kts (Potential), LOCK:82.28%, COH:0.566
+[INFO] [INFO] Frame 200: Max Wind 32.5 kts | θ′_max: 2.56 K
+[INFO]     🔥 BUOYANCY: Raw=0.0821 → Limited=0.0814 m/s² (clamp=0.9%)
+[INFO]     🌬️ UPDRAFT: Max w=5.98 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.81, Track=0.82, Offset=0.0, COH=0.806
+    METRICS: Pmin:-0.00, Wmax:29.2 kts (Potential), LOCK:82.29%, COH:0.806
+[INFO] [INFO] Frame 300: Max Wind 29.2 kts | θ′_max: 2.85 K
+[INFO]     🔥 BUOYANCY: Raw=0.0916 → Limited=0.0906 m/s² (clamp=1.1%)
+[INFO]     🌬️ UPDRAFT: Max w=4.52 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.4kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.60, Track=0.82, Offset=0.0, COH=0.600
+    METRICS: Pmin:-0.00, Wmax:27.4 kts (Potential), LOCK:82.28%, COH:0.600
+[INFO] [INFO] Frame 400: Max Wind 27.4 kts | θ′_max: 2.72 K
+[INFO]     🔥 BUOYANCY: Raw=0.0857 → Limited=0.0849 m/s² (clamp=1.0%)
+[INFO]     🌬️ UPDRAFT: Max w=3.59 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=26.0kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.93, Track=0.82, Offset=0.0, COH=0.930
+    METRICS: Pmin:-0.00, Wmax:26.0 kts (Potential), LOCK:82.28%, COH:0.930
+[INFO] [INFO] Frame 500: Max Wind 26.0 kts | θ′_max: 5.28 K
+[INFO]     🔥 BUOYANCY: Raw=0.1669 → Limited=0.1609 m/s² (clamp=3.6%)
+[INFO]     🌬️ UPDRAFT: Max w=3.22 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=0.20K, T_core=-11.9°C (Δ=+0.2)
+[INFO]     📉 STRATIFICATION: eff=1.00, eff_updraft=1.00 (reduction: 0%)
+[INFO]     🌀 NU_TURB: max=0.0104, mean=0.0001 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=4.89 g/kg (q_sat=24.2, q_sfc=19.3)
+[INFO]     💦 MOISTURE FLOOR: 33137085 cells clamped
+[INFO]     💧 BETTS-MILLER: 117 cells active, 0.081 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=21.24 q_1250=13.92 q_2500=8.23 g/kg
+[INFO]     🔬 BM LEVELS: L0(89 cells, dq=0.000) L1(21, dq=-0.053) L2(5, dq=-0.016)
+[INFO]     🔬 COUPLING: q_gradient=13.02 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=24.7kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.84, Track=0.82, Offset=0.0, COH=0.842
+    METRICS: Pmin:-0.00, Wmax:24.7 kts (Potential), LOCK:82.28%, COH:0.842
+[INFO] [INFO] Frame 600: Max Wind 24.7 kts | θ′_max: 5.32 K
+[INFO]     🔥 BUOYANCY: Raw=0.1652 → Limited=0.1595 m/s² (clamp=3.5%)
+[INFO]     🌬️ UPDRAFT: Max w=8.96 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=23.5kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.0, COH=0.659
+    METRICS: Pmin:-0.00, Wmax:23.5 kts (Potential), LOCK:82.28%, COH:0.659
+[INFO] [INFO] Frame 700: Max Wind 23.5 kts | θ′_max: 6.00 K
+[INFO]     🔥 BUOYANCY: Raw=0.1831 → Limited=0.1754 m/s² (clamp=4.2%)
+[INFO]     🌬️ UPDRAFT: Max w=10.85 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=22.7kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.82, Offset=0.0, COH=0.751
+    METRICS: Pmin:-0.00, Wmax:22.7 kts (Potential), LOCK:82.28%, COH:0.751
+[INFO] [INFO] Frame 800: Max Wind 22.7 kts | θ′_max: 6.47 K
+[INFO]     🔥 BUOYANCY: Raw=0.1943 → Limited=0.1851 m/s² (clamp=4.7%)
+[INFO]     🌬️ UPDRAFT: Max w=14.66 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=21.8kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.0, COH=0.742
+    METRICS: Pmin:-0.00, Wmax:21.8 kts (Potential), LOCK:82.28%, COH:0.742
+[INFO] [INFO] Frame 900: Max Wind 21.8 kts | θ′_max: 6.87 K
+[INFO]     🔥 BUOYANCY: Raw=0.1997 → Limited=0.1897 m/s² (clamp=5.0%)
+[INFO]     🌬️ UPDRAFT: Max w=19.53 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=21.1kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.0, COH=0.736
+    METRICS: Pmin:-0.00, Wmax:21.1 kts (Potential), LOCK:82.28%, COH:0.736
+[INFO] [INFO] Frame 1000: Max Wind 21.1 kts | θ′_max: 6.90 K
+[INFO]     🔥 BUOYANCY: Raw=0.1974 → Limited=0.1878 m/s² (clamp=4.9%)
+[INFO]     🌬️ UPDRAFT: Max w=24.30 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=3.32K, T_core=-9.4°C (Δ=+2.7)
+[INFO]     📉 STRATIFICATION: eff=1.00, eff_updraft=1.00 (reduction: 0%)
+[INFO]     🌀 NU_TURB: max=0.0326, mean=0.0001 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=4.61 g/kg (q_sat=24.2, q_sfc=19.6)
+[INFO]     💦 MOISTURE FLOOR: 66577842 cells clamped
+[INFO]     💧 BETTS-MILLER: 225 cells active, 0.618 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=21.73 q_1250=14.70 q_2500=8.97 g/kg
+[INFO]     🔬 BM LEVELS: L0(137 cells, dq=0.000) L1(37, dq=-0.142) L2(17, dq=-0.104)
+[INFO]     🔬 COUPLING: q_gradient=12.77 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=20.5kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.82, Offset=0.0, COH=0.772
+    METRICS: Pmin:-0.00, Wmax:20.5 kts (Potential), LOCK:82.28%, COH:0.772
+[INFO] [INFO] Frame 1100: Max Wind 20.5 kts | θ′_max: 6.88 K
+[INFO]     🔥 BUOYANCY: Raw=0.1910 → Limited=0.1822 m/s² (clamp=4.6%)
+[INFO]     🌬️ UPDRAFT: Max w=30.51 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=19.9kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.78, Track=0.82, Offset=0.0, COH=0.779
+    METRICS: Pmin:-0.00, Wmax:19.9 kts (Potential), LOCK:82.28%, COH:0.779
+[INFO] [INFO] Frame 1200: Max Wind 19.9 kts | θ′_max: 6.35 K
+[INFO]     🔥 BUOYANCY: Raw=0.1783 → Limited=0.1711 m/s² (clamp=4.0%)
+[INFO]     🌬️ UPDRAFT: Max w=32.59 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=20.8kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.0, COH=0.722
+    METRICS: Pmin:-0.00, Wmax:20.8 kts (Potential), LOCK:82.28%, COH:0.722
+[INFO] [INFO] Frame 1300: Max Wind 20.8 kts | θ′_max: 5.98 K
+[INFO]     🔥 BUOYANCY: Raw=0.1612 → Limited=0.1558 m/s² (clamp=3.3%)
+[INFO]     🌬️ UPDRAFT: Max w=31.25 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=22.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.0, COH=0.723
+    METRICS: Pmin:-0.00, Wmax:22.7 kts (Potential), LOCK:82.28%, COH:0.723
+[INFO] [INFO] Frame 1400: Max Wind 22.7 kts | θ′_max: 5.24 K
+[INFO]     🔥 BUOYANCY: Raw=0.1412 → Limited=0.1376 m/s² (clamp=2.6%)
+[INFO]     🌬️ UPDRAFT: Max w=33.37 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=25.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.0, COH=0.711
+    METRICS: Pmin:-0.00, Wmax:25.4 kts (Potential), LOCK:82.27%, COH:0.711
+[INFO] [INFO] Frame 1500: Max Wind 25.4 kts | θ′_max: 6.11 K
+[INFO]     🔥 BUOYANCY: Raw=0.1805 → Limited=0.1730 m/s² (clamp=4.1%)
+[INFO]     🌬️ UPDRAFT: Max w=35.57 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=2.09K, T_core=-10.4°C (Δ=+1.7)
+[INFO]     📉 STRATIFICATION: eff=1.00, eff_updraft=1.00 (reduction: 0%)
+[INFO]     🌀 NU_TURB: max=0.0427, mean=0.0001 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=4.39 g/kg (q_sat=24.2, q_sfc=19.8)
+[INFO]     💦 MOISTURE FLOOR: 99786352 cells clamped
+[INFO]     💧 BETTS-MILLER: 310 cells active, 1.988 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=22.10 q_1250=15.03 q_2500=9.73 g/kg
+[INFO]     🔬 BM LEVELS: L0(153 cells, dq=0.000) L1(45, dq=-0.196) L2(17, dq=-0.297)
+[INFO]     🔬 COUPLING: q_gradient=12.37 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.0, COH=0.658
+    METRICS: Pmin:-0.00, Wmax:29.0 kts (Potential), LOCK:82.27%, COH:0.658
+[INFO] [INFO] Frame 1600: Max Wind 29.0 kts | θ′_max: 6.98 K
+[INFO]     🔥 BUOYANCY: Raw=0.1999 → Limited=0.1899 m/s² (clamp=5.0%)
+[INFO]     🌬️ UPDRAFT: Max w=35.29 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.1, COH=0.643
+    METRICS: Pmin:-0.00, Wmax:30.9 kts (Potential), LOCK:82.26%, COH:0.643
+[INFO] [INFO] Frame 1700: Max Wind 30.9 kts | θ′_max: 7.10 K
+[INFO]     🔥 BUOYANCY: Raw=0.1972 → Limited=0.1876 m/s² (clamp=4.9%)
+[INFO]     🌬️ UPDRAFT: Max w=34.81 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.5kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.0, COH=0.687
+    METRICS: Pmin:-0.00, Wmax:32.5 kts (Potential), LOCK:82.26%, COH:0.687
+[INFO] [INFO] Frame 1800: Max Wind 32.5 kts | θ′_max: 6.77 K
+[INFO]     🔥 BUOYANCY: Raw=0.1824 → Limited=0.1747 m/s² (clamp=4.2%)
+[INFO]     🌬️ UPDRAFT: Max w=34.25 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.9kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.0, COH=0.739
+    METRICS: Pmin:-0.00, Wmax:28.9 kts (Potential), LOCK:82.26%, COH:0.739
+[INFO] [INFO] Frame 1900: Max Wind 28.9 kts | θ′_max: 7.00 K
+[INFO]     🔥 BUOYANCY: Raw=0.1886 → Limited=0.1802 m/s² (clamp=4.5%)
+[INFO]     🌬️ UPDRAFT: Max w=33.77 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.79, Track=0.82, Offset=0.0, COH=0.788
+    METRICS: Pmin:-0.00, Wmax:30.1 kts (Potential), LOCK:82.26%, COH:0.788
+[INFO] [INFO] Frame 2000: Max Wind 30.1 kts | θ′_max: 7.23 K
+[INFO]     🔥 BUOYANCY: Raw=0.1948 → Limited=0.1855 m/s² (clamp=4.8%)
+[INFO]     🌬️ UPDRAFT: Max w=34.75 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=0.47K, T_core=-11.7°C (Δ=+0.4)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0351, mean=0.0002 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=4.20 g/kg (q_sat=24.2, q_sfc=20.0)
+[INFO]     💦 MOISTURE FLOOR: 132763764 cells clamped
+[INFO]     💧 BETTS-MILLER: 480 cells active, 5.509 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=22.41 q_1250=15.91 q_2500=11.20 g/kg
+[INFO]     🔬 BM LEVELS: L0(177 cells, dq=0.000) L1(53, dq=-0.375) L2(33, dq=-0.697)
+[INFO]     🔬 COUPLING: q_gradient=11.21 g/kg, floor_clamps=0
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.0, COH=0.761
+    METRICS: Pmin:-0.00, Wmax:39.4 kts (TS), LOCK:82.26%, COH:0.761
+[INFO] [INFO] Frame 2100: Max Wind 39.4 kts | θ′_max: 7.55 K
+[INFO]     🔥 BUOYANCY: Raw=0.2116 → Limited=0.1998 m/s² (clamp=5.6%)
+[INFO]     🌬️ UPDRAFT: Max w=35.09 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=45.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.0, COH=0.760
+    METRICS: Pmin:-0.00, Wmax:45.3 kts (TS), LOCK:82.26%, COH:0.760
+[INFO] [INFO] Frame 2200: Max Wind 45.3 kts | θ′_max: 12.95 K
+[INFO]     🔥 BUOYANCY: Raw=0.3433 → Limited=0.2979 m/s² (clamp=13.2%)
+[INFO]     🌬️ UPDRAFT: Max w=32.18 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=43.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.84, Track=0.82, Offset=0.0, COH=0.840
+    METRICS: Pmin:-0.00, Wmax:43.5 kts (TS), LOCK:82.26%, COH:0.840
+[INFO] [INFO] Frame 2300: Max Wind 43.5 kts | θ′_max: 11.86 K
+[INFO]     🔥 BUOYANCY: Raw=0.3816 → Limited=0.3215 m/s² (clamp=15.8%)
+[INFO]     🌬️ UPDRAFT: Max w=31.36 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.92, Track=0.82, Offset=0.1, COH=0.916
+    METRICS: Pmin:-0.00, Wmax:40.0 kts (TS), LOCK:82.26%, COH:0.916
+[INFO] [INFO] Frame 2400: Max Wind 40.0 kts | θ′_max: 16.45 K
+[INFO]     🔥 BUOYANCY: Raw=0.4363 → Limited=0.3513 m/s² (clamp=19.5%)
+[INFO]     🌬️ UPDRAFT: Max w=27.74 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.86, Track=0.82, Offset=0.0, COH=0.864
+    METRICS: Pmin:-0.00, Wmax:33.7 kts (Potential), LOCK:82.25%, COH:0.864
+[INFO] [INFO] Frame 2500: Max Wind 33.7 kts | θ′_max: 15.68 K
+[INFO]     🔥 BUOYANCY: Raw=0.4164 → Limited=0.3410 m/s² (clamp=18.1%)
+[INFO]     🌬️ UPDRAFT: Max w=29.29 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.26K, T_core=-14.7°C (Δ=-2.6)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0317, mean=0.0002 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=4.02 g/kg (q_sat=24.2, q_sfc=20.2)
+[INFO]     💦 MOISTURE FLOOR: 165413807 cells clamped
+[INFO]     💧 BETTS-MILLER: 647 cells active, 10.658 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=22.69 q_1250=16.85 q_2500=12.48 g/kg
+[INFO]     🔬 BM LEVELS: L0(185 cells, dq=0.000) L1(61, dq=-0.593) L2(45, dq=-1.108)
+[INFO]     🔬 COUPLING: q_gradient=10.21 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.84, Track=0.82, Offset=0.0, COH=0.839
+    METRICS: Pmin:-0.00, Wmax:27.9 kts (Potential), LOCK:82.25%, COH:0.839
+[INFO] [INFO] Frame 2600: Max Wind 27.9 kts | θ′_max: 11.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.2932 → Limited=0.2637 m/s² (clamp=10.1%)
+[INFO]     🌬️ UPDRAFT: Max w=31.62 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.82, Offset=0.0, COH=0.770
+    METRICS: Pmin:-0.00, Wmax:30.5 kts (Potential), LOCK:82.25%, COH:0.770
+[INFO] [INFO] Frame 2700: Max Wind 30.5 kts | θ′_max: 8.65 K
+[INFO]     🔥 BUOYANCY: Raw=0.2345 → Limited=0.2187 m/s² (clamp=6.7%)
+[INFO]     🌬️ UPDRAFT: Max w=30.18 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.3kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.78, Track=0.82, Offset=0.0, COH=0.784
+    METRICS: Pmin:-0.00, Wmax:30.3 kts (Potential), LOCK:82.25%, COH:0.784
+[INFO] [INFO] Frame 2800: Max Wind 30.3 kts | θ′_max: 9.94 K
+[INFO]     🔥 BUOYANCY: Raw=0.2657 → Limited=0.2432 m/s² (clamp=8.5%)
+[INFO]     🌬️ UPDRAFT: Max w=29.01 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.83, Track=0.82, Offset=0.1, COH=0.830
+    METRICS: Pmin:-0.00, Wmax:31.7 kts (Potential), LOCK:82.24%, COH:0.830
+[INFO] [INFO] Frame 2900: Max Wind 31.7 kts | θ′_max: 12.80 K
+[INFO]     🔥 BUOYANCY: Raw=0.3394 → Limited=0.2954 m/s² (clamp=13.0%)
+[INFO]     🌬️ UPDRAFT: Max w=29.74 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.82, Offset=0.0, COH=0.765
+    METRICS: Pmin:-0.00, Wmax:33.6 kts (Potential), LOCK:82.24%, COH:0.765
+[INFO] [INFO] Frame 3000: Max Wind 33.6 kts | θ′_max: 11.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.2933 → Limited=0.2637 m/s² (clamp=10.1%)
+[INFO]     🌬️ UPDRAFT: Max w=30.06 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-0.33K, T_core=-12.4°C (Δ=-0.3)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0291, mean=0.0003 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.86 g/kg (q_sat=24.2, q_sfc=20.4)
+[INFO]     💦 MOISTURE FLOOR: 197886570 cells clamped
+[INFO]     💧 BETTS-MILLER: 810 cells active, 14.825 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=22.96 q_1250=16.80 q_2500=13.58 g/kg
+[INFO]     🔬 BM LEVELS: L0(215 cells, dq=0.000) L1(49, dq=-0.694) L2(45, dq=-1.496)
+[INFO]     🔬 COUPLING: q_gradient=9.39 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.73, Track=0.82, Offset=0.1, COH=0.727
+    METRICS: Pmin:-0.00, Wmax:31.6 kts (Potential), LOCK:82.24%, COH:0.727
+[INFO] [INFO] Frame 3100: Max Wind 31.6 kts | θ′_max: 10.56 K
+[INFO]     🔥 BUOYANCY: Raw=0.2806 → Limited=0.2544 m/s² (clamp=9.3%)
+[INFO]     🌬️ UPDRAFT: Max w=30.15 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.80, Track=0.82, Offset=0.1, COH=0.801
+    METRICS: Pmin:-0.00, Wmax:33.6 kts (Potential), LOCK:82.24%, COH:0.801
+[INFO] [INFO] Frame 3200: Max Wind 33.6 kts | θ′_max: 11.13 K
+[INFO]     🔥 BUOYANCY: Raw=0.3000 → Limited=0.2686 m/s² (clamp=10.5%)
+[INFO]     🌬️ UPDRAFT: Max w=30.97 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.4kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.1, COH=0.679
+    METRICS: Pmin:-0.00, Wmax:34.4 kts (Potential), LOCK:82.23%, COH:0.679
+[INFO] [INFO] Frame 3300: Max Wind 34.4 kts | θ′_max: 11.76 K
+[INFO]     🔥 BUOYANCY: Raw=0.3119 → Limited=0.2769 m/s² (clamp=11.2%)
+[INFO]     🌬️ UPDRAFT: Max w=31.06 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.2kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.80, Track=0.82, Offset=0.1, COH=0.801
+    METRICS: Pmin:-0.00, Wmax:36.2 kts (Potential), LOCK:82.23%, COH:0.801
+[INFO] [INFO] Frame 3400: Max Wind 36.2 kts | θ′_max: 11.24 K
+[INFO]     🔥 BUOYANCY: Raw=0.2985 → Limited=0.2675 m/s² (clamp=10.4%)
+[INFO]     🌬️ UPDRAFT: Max w=29.86 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.0kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.0, COH=0.761
+    METRICS: Pmin:-0.00, Wmax:37.0 kts (Potential), LOCK:82.23%, COH:0.761
+[INFO] [INFO] Frame 3500: Max Wind 37.0 kts | θ′_max: 11.41 K
+[INFO]     🔥 BUOYANCY: Raw=0.3090 → Limited=0.2748 m/s² (clamp=11.0%)
+[INFO]     🌬️ UPDRAFT: Max w=31.23 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.86K, T_core=-13.6°C (Δ=-1.5)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0279, mean=0.0003 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.71 g/kg (q_sat=24.2, q_sfc=20.5)
+[INFO]     💦 MOISTURE FLOOR: 230119440 cells clamped
+[INFO]     💧 BETTS-MILLER: 1077 cells active, 21.656 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=23.20 q_1250=19.44 q_2500=16.24 g/kg
+[INFO]     🔬 BM LEVELS: L0(206 cells, dq=0.000) L1(94, dq=-1.108) L2(73, dq=-2.107)
+[INFO]     🔬 COUPLING: q_gradient=6.96 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.1, COH=0.707
+    METRICS: Pmin:-0.00, Wmax:33.5 kts (Potential), LOCK:82.23%, COH:0.707
+[INFO] [INFO] Frame 3600: Max Wind 33.5 kts | θ′_max: 16.90 K
+[INFO]     🔥 BUOYANCY: Raw=0.4481 → Limited=0.3572 m/s² (clamp=20.3%)
+[INFO]     🌬️ UPDRAFT: Max w=31.09 m/s
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-6.2, -0.1) m/s, σ=(3.8, 3.4)
+[INFO]     🧭 STEERING: u=-6.2, v=-0.1 m/s (12.1 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 14:24...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-4.1, v=+0.7 m/s (weight=4.0)
+        300 hPa: u=-3.9, v=+2.7 m/s (weight=2.0)
+        400 hPa: u=+1.9, v=+6.4 m/s (weight=1.0)
+        500 hPa: u=+1.1, v=+9.9 m/s (weight=1.0)
+        600 hPa: u=-0.8, v=+9.6 m/s (weight=1.0)
+        700 hPa: u=-3.5, v=+8.3 m/s (weight=1.0)
+        850 hPa: u=-6.1, v=+3.1 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-2.8, v=+3.9 m/s
+     🏝️ Land Fraction processed: 0.0% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.20°N, -20.01°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.1, COH=0.681
+    METRICS: Pmin:-0.00, Wmax:32.7 kts (Potential), LOCK:82.23%, COH:0.681
+[INFO] [INFO] Frame 3700: Max Wind 32.7 kts | θ′_max: 12.25 K
+[INFO]     🔥 BUOYANCY: Raw=0.3954 → Limited=0.3295 m/s² (clamp=16.7%)
+[INFO]     🌬️ UPDRAFT: Max w=30.28 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.0, COH=0.703
+    METRICS: Pmin:-0.00, Wmax:31.9 kts (Potential), LOCK:82.23%, COH:0.703
+[INFO] [INFO] Frame 3800: Max Wind 31.9 kts | θ′_max: 12.89 K
+[INFO]     🔥 BUOYANCY: Raw=0.4488 → Limited=0.3576 m/s² (clamp=20.3%)
+[INFO]     🌬️ UPDRAFT: Max w=30.42 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.73, Track=0.82, Offset=0.1, COH=0.734
+    METRICS: Pmin:-0.00, Wmax:32.4 kts (Potential), LOCK:82.22%, COH:0.734
+[INFO] [INFO] Frame 3900: Max Wind 32.4 kts | θ′_max: 14.52 K
+[INFO]     🔥 BUOYANCY: Raw=0.4222 → Limited=0.3441 m/s² (clamp=18.5%)
+[INFO]     🌬️ UPDRAFT: Max w=29.52 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.0, COH=0.695
+    METRICS: Pmin:-0.00, Wmax:34.8 kts (Potential), LOCK:82.22%, COH:0.695
+[INFO] [INFO] Frame 4000: Max Wind 34.8 kts | θ′_max: 16.79 K
+[INFO]     🔥 BUOYANCY: Raw=0.4451 → Limited=0.3558 m/s² (clamp=20.1%)
+[INFO]     🌬️ UPDRAFT: Max w=28.51 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.60K, T_core=-15.0°C (Δ=-2.9)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0308, mean=0.0003 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.55 g/kg (q_sat=24.2, q_sfc=20.7)
+[INFO]     💦 MOISTURE FLOOR: 262144725 cells clamped
+[INFO]     💧 BETTS-MILLER: 1303 cells active, 28.182 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=23.45 q_1250=20.15 q_2500=18.74 g/kg
+[INFO]     🔬 BM LEVELS: L0(222 cells, dq=0.000) L1(86, dq=-1.295) L2(81, dq=-2.843)
+[INFO]     🔬 COUPLING: q_gradient=4.71 g/kg, floor_clamps=0
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=43.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.672
+    METRICS: Pmin:-0.00, Wmax:43.3 kts (TS), LOCK:82.22%, COH:0.672
+[INFO] [INFO] Frame 4100: Max Wind 43.3 kts | θ′_max: 14.57 K
+[INFO]     🔥 BUOYANCY: Raw=0.3863 → Limited=0.3242 m/s² (clamp=16.1%)
+[INFO]     🌬️ UPDRAFT: Max w=33.76 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=49.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.0, COH=0.716
+    METRICS: Pmin:-0.00, Wmax:49.8 kts (TS), LOCK:82.22%, COH:0.716
+[INFO] [INFO] Frame 4200: Max Wind 49.8 kts | θ′_max: 14.66 K
+[INFO]     🔥 BUOYANCY: Raw=0.3887 → Limited=0.3256 m/s² (clamp=16.2%)
+[INFO]     🌬️ UPDRAFT: Max w=33.24 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=44.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.646
+    METRICS: Pmin:-0.00, Wmax:44.1 kts (TS), LOCK:82.22%, COH:0.646
+[INFO] [INFO] Frame 4300: Max Wind 44.1 kts | θ′_max: 13.95 K
+[INFO]     🔥 BUOYANCY: Raw=0.3760 → Limited=0.3182 m/s² (clamp=15.4%)
+[INFO]     🌬️ UPDRAFT: Max w=33.56 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.1, COH=0.691
+    METRICS: Pmin:-0.00, Wmax:40.5 kts (TS), LOCK:82.21%, COH:0.691
+[INFO] [INFO] Frame 4400: Max Wind 40.5 kts | θ′_max: 13.09 K
+[INFO]     🔥 BUOYANCY: Raw=0.3477 → Limited=0.3007 m/s² (clamp=13.5%)
+[INFO]     🌬️ UPDRAFT: Max w=32.00 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.1, COH=0.662
+    METRICS: Pmin:-0.00, Wmax:39.0 kts (TS), LOCK:82.21%, COH:0.662
+[INFO] [INFO] Frame 4500: Max Wind 39.0 kts | θ′_max: 12.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.3207 → Limited=0.2829 m/s² (clamp=11.8%)
+[INFO]     🌬️ UPDRAFT: Max w=29.93 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.79K, T_core=-14.3°C (Δ=-2.2)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0355, mean=0.0004 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.42 g/kg (q_sat=24.2, q_sfc=20.8)
+[INFO]     💦 MOISTURE FLOOR: 293910709 cells clamped
+[INFO]     💧 BETTS-MILLER: 1659 cells active, 37.177 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=23.64 q_1250=21.77 q_2500=20.94 g/kg
+[INFO]     🔬 BM LEVELS: L0(230 cells, dq=0.000) L1(124, dq=-1.752) L2(109, dq=-3.650)
+[INFO]     🔬 COUPLING: q_gradient=2.70 g/kg, floor_clamps=0
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.0, COH=0.684
+    METRICS: Pmin:-0.00, Wmax:37.8 kts (Potential), LOCK:82.21%, COH:0.684
+[INFO] [INFO] Frame 4600: Max Wind 37.8 kts | θ′_max: 11.97 K
+[INFO]     🔥 BUOYANCY: Raw=0.3180 → Limited=0.2811 m/s² (clamp=11.6%)
+[INFO]     🌬️ UPDRAFT: Max w=28.79 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.696
+    METRICS: Pmin:-0.00, Wmax:35.7 kts (Potential), LOCK:82.21%, COH:0.696
+[INFO] [INFO] Frame 4700: Max Wind 35.7 kts | θ′_max: 12.10 K
+[INFO]     🔥 BUOYANCY: Raw=0.3208 → Limited=0.2830 m/s² (clamp=11.8%)
+[INFO]     🌬️ UPDRAFT: Max w=29.04 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.0, COH=0.738
+    METRICS: Pmin:-0.00, Wmax:34.2 kts (Potential), LOCK:82.21%, COH:0.738
+[INFO] [INFO] Frame 4800: Max Wind 34.2 kts | θ′_max: 11.93 K
+[INFO]     🔥 BUOYANCY: Raw=0.3164 → Limited=0.2800 m/s² (clamp=11.5%)
+[INFO]     🌬️ UPDRAFT: Max w=30.21 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.0, COH=0.763
+    METRICS: Pmin:-0.00, Wmax:32.0 kts (Potential), LOCK:82.21%, COH:0.763
+[INFO] [INFO] Frame 4900: Max Wind 32.0 kts | θ′_max: 11.81 K
+[INFO]     🔥 BUOYANCY: Raw=0.3131 → Limited=0.2777 m/s² (clamp=11.3%)
+[INFO]     🌬️ UPDRAFT: Max w=31.03 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.0, COH=0.714
+    METRICS: Pmin:-0.00, Wmax:36.4 kts (Potential), LOCK:82.21%, COH:0.714
+[INFO] [INFO] Frame 5000: Max Wind 36.4 kts | θ′_max: 13.39 K
+[INFO]     🔥 BUOYANCY: Raw=0.3550 → Limited=0.3053 m/s² (clamp=14.0%)
+[INFO]     🌬️ UPDRAFT: Max w=31.66 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-0.54K, T_core=-12.5°C (Δ=-0.4)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.99 (reduction: 1%)
+[INFO]     🌀 NU_TURB: max=0.0330, mean=0.0004 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.25 g/kg (q_sat=24.2, q_sfc=21.0)
+[INFO]     💦 MOISTURE FLOOR: 325568280 cells clamped
+[INFO]     💧 BETTS-MILLER: 1894 cells active, 48.190 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=23.88 q_1250=22.18 q_2500=22.39 g/kg
+[INFO]     🔬 BM LEVELS: L0(245 cells, dq=0.000) L1(136, dq=-2.075) L2(117, dq=-4.460)
+[INFO]     🔬 COUPLING: q_gradient=1.49 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.0, COH=0.667
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:82.21%, COH:0.667
+[INFO] [INFO] Frame 5100: Max Wind 35.4 kts | θ′_max: 13.62 K
+[INFO]     🔥 BUOYANCY: Raw=0.3612 → Limited=0.3092 m/s² (clamp=14.4%)
+[INFO]     🌬️ UPDRAFT: Max w=30.10 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.0, COH=0.646
+    METRICS: Pmin:-0.00, Wmax:36.9 kts (Potential), LOCK:82.21%, COH:0.646
+[INFO] [INFO] Frame 5200: Max Wind 36.9 kts | θ′_max: 12.99 K
+[INFO]     🔥 BUOYANCY: Raw=0.3446 → Limited=0.2987 m/s² (clamp=13.3%)
+[INFO]     🌬️ UPDRAFT: Max w=32.25 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=42.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.697
+    METRICS: Pmin:-0.00, Wmax:42.2 kts (TS), LOCK:82.21%, COH:0.697
+[INFO] [INFO] Frame 5300: Max Wind 42.2 kts | θ′_max: 12.86 K
+[INFO]     🔥 BUOYANCY: Raw=0.3409 → Limited=0.2964 m/s² (clamp=13.1%)
+[INFO]     🌬️ UPDRAFT: Max w=31.10 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.0, COH=0.696
+    METRICS: Pmin:-0.00, Wmax:37.0 kts (Potential), LOCK:82.21%, COH:0.696
+[INFO] [INFO] Frame 5400: Max Wind 37.0 kts | θ′_max: 12.90 K
+[INFO]     🔥 BUOYANCY: Raw=0.3422 → Limited=0.2972 m/s² (clamp=13.2%)
+[INFO]     🌬️ UPDRAFT: Max w=31.43 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.0, COH=0.658
+    METRICS: Pmin:-0.00, Wmax:32.5 kts (Potential), LOCK:82.21%, COH:0.658
+[INFO] [INFO] Frame 5500: Max Wind 32.5 kts | θ′_max: 12.95 K
+[INFO]     🔥 BUOYANCY: Raw=0.3432 → Limited=0.2979 m/s² (clamp=13.2%)
+[INFO]     🌬️ UPDRAFT: Max w=30.71 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-0.14K, T_core=-12.2°C (Δ=-0.1)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0320, mean=0.0004 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=3.08 g/kg (q_sat=24.2, q_sfc=21.1)
+[INFO]     💦 MOISTURE FLOOR: 357167569 cells clamped
+[INFO]     💧 BETTS-MILLER: 2232 cells active, 57.451 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.08 q_1250=22.48 q_2500=23.23 g/kg
+[INFO]     🔬 BM LEVELS: L0(249 cells, dq=0.000) L1(165, dq=-2.413) L2(141, dq=-5.212)
+[INFO]     🔬 COUPLING: q_gradient=0.85 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.0, COH=0.710
+    METRICS: Pmin:-0.00, Wmax:30.8 kts (Potential), LOCK:82.21%, COH:0.710
+[INFO] [INFO] Frame 5600: Max Wind 30.8 kts | θ′_max: 12.09 K
+[INFO]     🔥 BUOYANCY: Raw=0.3207 → Limited=0.2829 m/s² (clamp=11.8%)
+[INFO]     🌬️ UPDRAFT: Max w=29.67 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.1, COH=0.706
+    METRICS: Pmin:-0.00, Wmax:29.8 kts (Potential), LOCK:82.21%, COH:0.706
+[INFO] [INFO] Frame 5700: Max Wind 29.8 kts | θ′_max: 12.26 K
+[INFO]     🔥 BUOYANCY: Raw=0.3253 → Limited=0.2860 m/s² (clamp=12.1%)
+[INFO]     🌬️ UPDRAFT: Max w=30.26 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.674
+    METRICS: Pmin:-0.00, Wmax:32.4 kts (Potential), LOCK:82.21%, COH:0.674
+[INFO] [INFO] Frame 5800: Max Wind 32.4 kts | θ′_max: 14.00 K
+[INFO]     🔥 BUOYANCY: Raw=0.3713 → Limited=0.3153 m/s² (clamp=15.1%)
+[INFO]     🌬️ UPDRAFT: Max w=30.64 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.1, COH=0.713
+    METRICS: Pmin:-0.00, Wmax:31.7 kts (Potential), LOCK:82.21%, COH:0.713
+[INFO] [INFO] Frame 5900: Max Wind 31.7 kts | θ′_max: 14.60 K
+[INFO]     🔥 BUOYANCY: Raw=0.3871 → Limited=0.3247 m/s² (clamp=16.1%)
+[INFO]     🌬️ UPDRAFT: Max w=31.86 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.673
+    METRICS: Pmin:-0.00, Wmax:31.6 kts (Potential), LOCK:82.20%, COH:0.673
+[INFO] [INFO] Frame 6000: Max Wind 31.6 kts | θ′_max: 13.29 K
+[INFO]     🔥 BUOYANCY: Raw=0.3523 → Limited=0.3036 m/s² (clamp=13.8%)
+[INFO]     🌬️ UPDRAFT: Max w=31.00 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.35K, T_core=-14.0°C (Δ=-1.9)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0382, mean=0.0005 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=2.90 g/kg (q_sat=24.2, q_sfc=21.3)
+[INFO]     💦 MOISTURE FLOOR: 388798186 cells clamped
+[INFO]     💧 BETTS-MILLER: 2505 cells active, 67.732 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.21 q_1250=22.40 q_2500=23.40 g/kg
+[INFO]     🔬 BM LEVELS: L0(262 cells, dq=0.000) L1(185, dq=-2.806) L2(166, dq=-6.139)
+[INFO]     🔬 COUPLING: q_gradient=0.81 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.1, COH=0.707
+    METRICS: Pmin:-0.00, Wmax:30.4 kts (Potential), LOCK:82.20%, COH:0.707
+[INFO] [INFO] Frame 6100: Max Wind 30.4 kts | θ′_max: 14.70 K
+[INFO]     🔥 BUOYANCY: Raw=0.3898 → Limited=0.3262 m/s² (clamp=16.3%)
+[INFO]     🌬️ UPDRAFT: Max w=31.39 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.668
+    METRICS: Pmin:-0.00, Wmax:30.5 kts (Potential), LOCK:82.20%, COH:0.668
+[INFO] [INFO] Frame 6200: Max Wind 30.5 kts | θ′_max: 14.06 K
+[INFO]     🔥 BUOYANCY: Raw=0.3728 → Limited=0.3162 m/s² (clamp=15.2%)
+[INFO]     🌬️ UPDRAFT: Max w=31.33 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.702
+    METRICS: Pmin:-0.00, Wmax:29.9 kts (Potential), LOCK:82.20%, COH:0.702
+[INFO] [INFO] Frame 6300: Max Wind 29.9 kts | θ′_max: 14.52 K
+[INFO]     🔥 BUOYANCY: Raw=0.3851 → Limited=0.3235 m/s² (clamp=16.0%)
+[INFO]     🌬️ UPDRAFT: Max w=32.43 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.1, COH=0.637
+    METRICS: Pmin:-0.00, Wmax:30.6 kts (Potential), LOCK:82.20%, COH:0.637
+[INFO] [INFO] Frame 6400: Max Wind 30.6 kts | θ′_max: 13.41 K
+[INFO]     🔥 BUOYANCY: Raw=0.3555 → Limited=0.3056 m/s² (clamp=14.0%)
+[INFO]     🌬️ UPDRAFT: Max w=32.89 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.1, COH=0.620
+    METRICS: Pmin:-0.00, Wmax:27.2 kts (Potential), LOCK:82.19%, COH:0.620
+[INFO] [INFO] Frame 6500: Max Wind 27.2 kts | θ′_max: 12.25 K
+[INFO]     🔥 BUOYANCY: Raw=0.3275 → Limited=0.2875 m/s² (clamp=12.2%)
+[INFO]     🌬️ UPDRAFT: Max w=32.31 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.56K, T_core=-13.3°C (Δ=-1.2)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0307, mean=0.0005 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=2.68 g/kg (q_sat=24.2, q_sfc=21.5)
+[INFO]     💦 MOISTURE FLOOR: 420538741 cells clamped
+[INFO]     💧 BETTS-MILLER: 2810 cells active, 77.400 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.30 q_1250=22.45 q_2500=23.43 g/kg
+[INFO]     🔬 BM LEVELS: L0(252 cells, dq=0.000) L1(215, dq=-3.292) L2(198, dq=-7.056)
+[INFO]     🔬 COUPLING: q_gradient=0.87 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.1, COH=0.722
+    METRICS: Pmin:-0.00, Wmax:30.1 kts (Potential), LOCK:82.19%, COH:0.722
+[INFO] [INFO] Frame 6600: Max Wind 30.1 kts | θ′_max: 13.24 K
+[INFO]     🔥 BUOYANCY: Raw=0.3578 → Limited=0.3071 m/s² (clamp=14.2%)
+[INFO]     🌬️ UPDRAFT: Max w=33.01 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.4kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.82, Offset=0.1, COH=0.748
+    METRICS: Pmin:-0.00, Wmax:33.4 kts (Potential), LOCK:82.19%, COH:0.748
+[INFO] [INFO] Frame 6700: Max Wind 33.4 kts | θ′_max: 12.68 K
+[INFO]     🔥 BUOYANCY: Raw=0.3361 → Limited=0.2932 m/s² (clamp=12.8%)
+[INFO]     🌬️ UPDRAFT: Max w=32.90 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.4kts, p_range=0.0000
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.79, Track=0.82, Offset=0.1, COH=0.789
+    METRICS: Pmin:-0.00, Wmax:33.4 kts (Potential), LOCK:82.18%, COH:0.789
+[INFO] [INFO] Frame 6800: Max Wind 33.4 kts | θ′_max: 13.49 K
+[INFO]     🔥 BUOYANCY: Raw=0.3576 → Limited=0.3070 m/s² (clamp=14.2%)
+[INFO]     🌬️ UPDRAFT: Max w=31.91 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.695
+    METRICS: Pmin:-0.00, Wmax:35.2 kts (Potential), LOCK:82.18%, COH:0.695
+[INFO] [INFO] Frame 6900: Max Wind 35.2 kts | θ′_max: 12.83 K
+[INFO]     🔥 BUOYANCY: Raw=0.3402 → Limited=0.2959 m/s² (clamp=13.0%)
+[INFO]     🌬️ UPDRAFT: Max w=30.85 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.649
+    METRICS: Pmin:-0.00, Wmax:36.2 kts (Potential), LOCK:82.18%, COH:0.649
+[INFO] [INFO] Frame 7000: Max Wind 36.2 kts | θ′_max: 12.58 K
+[INFO]     🔥 BUOYANCY: Raw=0.3433 → Limited=0.2979 m/s² (clamp=13.2%)
+[INFO]     🌬️ UPDRAFT: Max w=30.19 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-0.58K, T_core=-12.6°C (Δ=-0.5)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0325, mean=0.0006 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=2.43 g/kg (q_sat=24.2, q_sfc=21.8)
+[INFO]     💦 MOISTURE FLOOR: 452169537 cells clamped
+[INFO]     💧 BETTS-MILLER: 3063 cells active, 84.738 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.34 q_1250=22.49 q_2500=23.43 g/kg
+[INFO]     🔬 BM LEVELS: L0(265 cells, dq=0.000) L1(209, dq=-3.564) L2(199, dq=-7.810)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.0, COH=0.658
+    METRICS: Pmin:-0.00, Wmax:34.1 kts (Potential), LOCK:82.18%, COH:0.658
+[INFO] [INFO] Frame 7100: Max Wind 34.1 kts | θ′_max: 13.06 K
+[INFO]     🔥 BUOYANCY: Raw=0.3462 → Limited=0.2997 m/s² (clamp=13.4%)
+[INFO]     🌬️ UPDRAFT: Max w=33.26 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.2, COH=0.661
+    METRICS: Pmin:-0.00, Wmax:32.4 kts (Potential), LOCK:82.18%, COH:0.661
+[INFO] [INFO] Frame 7200: Max Wind 32.4 kts | θ′_max: 13.53 K
+[INFO]     🔥 BUOYANCY: Raw=0.3587 → Limited=0.3076 m/s² (clamp=14.2%)
+[INFO]     🌬️ UPDRAFT: Max w=36.42 m/s
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-5.3, 1.3) m/s, σ=(3.5, 3.4)
+[INFO]     🧭 STEERING: u=-5.3, v=1.3 m/s (10.7 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 16:48...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-1.4, v=+0.5 m/s (weight=4.0)
+        300 hPa: u=-3.2, v=+1.8 m/s (weight=2.0)
+        400 hPa: u=+3.4, v=+6.0 m/s (weight=1.0)
+        500 hPa: u=+1.2, v=+7.8 m/s (weight=1.0)
+        600 hPa: u=-0.6, v=+8.8 m/s (weight=1.0)
+        700 hPa: u=-3.7, v=+9.2 m/s (weight=1.0)
+        850 hPa: u=-4.6, v=+4.4 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-1.4, v=+3.5 m/s
+     🏝️ Land Fraction processed: 0.0% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.20°N, -20.51°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.1, COH=0.692
+    METRICS: Pmin:-0.00, Wmax:33.3 kts (Potential), LOCK:82.18%, COH:0.692
+[INFO] [INFO] Frame 7300: Max Wind 33.3 kts | θ′_max: 13.46 K
+[INFO]     🔥 BUOYANCY: Raw=0.3568 → Limited=0.3065 m/s² (clamp=14.1%)
+[INFO]     🌬️ UPDRAFT: Max w=35.79 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.2, COH=0.715
+    METRICS: Pmin:-0.00, Wmax:33.4 kts (Potential), LOCK:82.17%, COH:0.715
+[INFO] [INFO] Frame 7400: Max Wind 33.4 kts | θ′_max: 13.15 K
+[INFO]     🔥 BUOYANCY: Raw=0.3488 → Limited=0.3014 m/s² (clamp=13.6%)
+[INFO]     🌬️ UPDRAFT: Max w=37.02 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.697
+    METRICS: Pmin:-0.00, Wmax:34.5 kts (Potential), LOCK:82.17%, COH:0.697
+[INFO] [INFO] Frame 7500: Max Wind 34.5 kts | θ′_max: 12.60 K
+[INFO]     🔥 BUOYANCY: Raw=0.3341 → Limited=0.2919 m/s² (clamp=12.6%)
+[INFO]     🌬️ UPDRAFT: Max w=36.83 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.94K, T_core=-13.6°C (Δ=-1.6)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0348, mean=0.0006 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=2.21 g/kg (q_sat=24.2, q_sfc=22.0)
+[INFO]     💦 MOISTURE FLOOR: 483588343 cells clamped
+[INFO]     💧 BETTS-MILLER: 3531 cells active, 99.209 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.37 q_1250=22.56 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(311 cells, dq=0.000) L1(255, dq=-4.039) L2(225, dq=-8.836)
+[INFO]     🔬 COUPLING: q_gradient=0.86 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.2, COH=0.664
+    METRICS: Pmin:-0.00, Wmax:30.1 kts (Potential), LOCK:82.17%, COH:0.664
+[INFO] [INFO] Frame 7600: Max Wind 30.1 kts | θ′_max: 15.30 K
+[INFO]     🔥 BUOYANCY: Raw=0.4056 → Limited=0.3351 m/s² (clamp=17.4%)
+[INFO]     🌬️ UPDRAFT: Max w=36.28 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.3, COH=0.712
+    METRICS: Pmin:-0.00, Wmax:28.3 kts (Potential), LOCK:82.16%, COH:0.712
+[INFO] [INFO] Frame 7700: Max Wind 28.3 kts | θ′_max: 14.01 K
+[INFO]     🔥 BUOYANCY: Raw=0.3714 → Limited=0.3154 m/s² (clamp=15.1%)
+[INFO]     🌬️ UPDRAFT: Max w=34.38 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.2, COH=0.716
+    METRICS: Pmin:-0.00, Wmax:29.7 kts (Potential), LOCK:82.16%, COH:0.716
+[INFO] [INFO] Frame 7800: Max Wind 29.7 kts | θ′_max: 13.90 K
+[INFO]     🔥 BUOYANCY: Raw=0.3854 → Limited=0.3237 m/s² (clamp=16.0%)
+[INFO]     🌬️ UPDRAFT: Max w=33.00 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.1, COH=0.663
+    METRICS: Pmin:-0.00, Wmax:30.3 kts (Potential), LOCK:82.16%, COH:0.663
+[INFO] [INFO] Frame 7900: Max Wind 30.3 kts | θ′_max: 16.64 K
+[INFO]     🔥 BUOYANCY: Raw=0.4411 → Limited=0.3538 m/s² (clamp=19.8%)
+[INFO]     🌬️ UPDRAFT: Max w=33.25 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.654
+    METRICS: Pmin:-0.00, Wmax:29.3 kts (Potential), LOCK:82.16%, COH:0.654
+[INFO] [INFO] Frame 8000: Max Wind 29.3 kts | θ′_max: 16.17 K
+[INFO]     🔥 BUOYANCY: Raw=0.4287 → Limited=0.3474 m/s² (clamp=18.9%)
+[INFO]     🌬️ UPDRAFT: Max w=32.58 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.27K, T_core=-14.7°C (Δ=-2.6)
+[INFO]     📉 STRATIFICATION: eff=0.99, eff_updraft=0.98 (reduction: 2%)
+[INFO]     🌀 NU_TURB: max=0.0340, mean=0.0006 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=1.92 g/kg (q_sat=24.2, q_sfc=22.3)
+[INFO]     💦 MOISTURE FLOOR: 514944949 cells clamped
+[INFO]     💧 BETTS-MILLER: 3817 cells active, 110.806 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.44 q_1250=22.55 q_2500=23.54 g/kg
+[INFO]     🔬 BM LEVELS: L0(310 cells, dq=0.000) L1(259, dq=-4.477) L2(247, dq=-9.850)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.672
+    METRICS: Pmin:-0.00, Wmax:28.3 kts (Potential), LOCK:82.16%, COH:0.672
+[INFO] [INFO] Frame 8100: Max Wind 28.3 kts | θ′_max: 13.58 K
+[INFO]     🔥 BUOYANCY: Raw=0.3876 → Limited=0.3250 m/s² (clamp=16.2%)
+[INFO]     🌬️ UPDRAFT: Max w=32.89 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.648
+    METRICS: Pmin:-0.00, Wmax:29.3 kts (Potential), LOCK:82.16%, COH:0.648
+[INFO] [INFO] Frame 8200: Max Wind 29.3 kts | θ′_max: 14.09 K
+[INFO]     🔥 BUOYANCY: Raw=0.4050 → Limited=0.3348 m/s² (clamp=17.3%)
+[INFO]     🌬️ UPDRAFT: Max w=33.12 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.2, COH=0.698
+    METRICS: Pmin:-0.00, Wmax:28.4 kts (Potential), LOCK:82.15%, COH:0.698
+[INFO] [INFO] Frame 8300: Max Wind 28.4 kts | θ′_max: 16.07 K
+[INFO]     🔥 BUOYANCY: Raw=0.4262 → Limited=0.3462 m/s² (clamp=18.8%)
+[INFO]     🌬️ UPDRAFT: Max w=33.07 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.3, COH=0.640
+    METRICS: Pmin:-0.00, Wmax:28.4 kts (Potential), LOCK:82.14%, COH:0.640
+[INFO] [INFO] Frame 8400: Max Wind 28.4 kts | θ′_max: 13.82 K
+[INFO]     🔥 BUOYANCY: Raw=0.3728 → Limited=0.3163 m/s² (clamp=15.2%)
+[INFO]     🌬️ UPDRAFT: Max w=32.91 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.3, COH=0.705
+    METRICS: Pmin:-0.00, Wmax:32.4 kts (Potential), LOCK:82.14%, COH:0.705
+[INFO] [INFO] Frame 8500: Max Wind 32.4 kts | θ′_max: 13.86 K
+[INFO]     🔥 BUOYANCY: Raw=0.4376 → Limited=0.3520 m/s² (clamp=19.6%)
+[INFO]     🌬️ UPDRAFT: Max w=34.82 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.68K, T_core=-15.0°C (Δ=-2.9)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.97 (reduction: 3%)
+[INFO]     🌀 NU_TURB: max=0.0368, mean=0.0007 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=1.64 g/kg (q_sat=24.2, q_sfc=22.6)
+[INFO]     💦 MOISTURE FLOOR: 546202687 cells clamped
+[INFO]     💧 BETTS-MILLER: 4189 cells active, 122.472 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.46 q_1250=22.62 q_2500=23.58 g/kg
+[INFO]     🔬 BM LEVELS: L0(343 cells, dq=0.000) L1(283, dq=-4.849) L2(268, dq=-10.807)
+[INFO]     🔬 COUPLING: q_gradient=0.88 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.3, COH=0.703
+    METRICS: Pmin:-0.00, Wmax:30.6 kts (Potential), LOCK:82.13%, COH:0.703
+[INFO] [INFO] Frame 8600: Max Wind 30.6 kts | θ′_max: 14.80 K
+[INFO]     🔥 BUOYANCY: Raw=0.4538 → Limited=0.3600 m/s² (clamp=20.7%)
+[INFO]     🌬️ UPDRAFT: Max w=36.01 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.2, COH=0.648
+    METRICS: Pmin:-0.00, Wmax:27.7 kts (Potential), LOCK:82.13%, COH:0.648
+[INFO] [INFO] Frame 8700: Max Wind 27.7 kts | θ′_max: 14.50 K
+[INFO]     🔥 BUOYANCY: Raw=0.3907 → Limited=0.3267 m/s² (clamp=16.4%)
+[INFO]     🌬️ UPDRAFT: Max w=35.57 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.2, COH=0.688
+    METRICS: Pmin:-0.00, Wmax:27.1 kts (Potential), LOCK:82.12%, COH:0.688
+[INFO] [INFO] Frame 8800: Max Wind 27.1 kts | θ′_max: 15.51 K
+[INFO]     🔥 BUOYANCY: Raw=0.4113 → Limited=0.3383 m/s² (clamp=17.8%)
+[INFO]     🌬️ UPDRAFT: Max w=35.34 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.2, COH=0.644
+    METRICS: Pmin:-0.00, Wmax:28.0 kts (Potential), LOCK:82.12%, COH:0.644
+[INFO] [INFO] Frame 8900: Max Wind 28.0 kts | θ′_max: 15.07 K
+[INFO]     🔥 BUOYANCY: Raw=0.4122 → Limited=0.3387 m/s² (clamp=17.8%)
+[INFO]     🌬️ UPDRAFT: Max w=34.33 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.2, COH=0.617
+    METRICS: Pmin:-0.00, Wmax:27.0 kts (Potential), LOCK:82.12%, COH:0.617
+[INFO] [INFO] Frame 9000: Max Wind 27.0 kts | θ′_max: 14.69 K
+[INFO]     🔥 BUOYANCY: Raw=0.4031 → Limited=0.3337 m/s² (clamp=17.2%)
+[INFO]     🌬️ UPDRAFT: Max w=35.66 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.99K, T_core=-14.5°C (Δ=-2.4)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.97 (reduction: 3%)
+[INFO]     🌀 NU_TURB: max=0.0362, mean=0.0007 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=1.32 g/kg (q_sat=24.2, q_sfc=22.9)
+[INFO]     💦 MOISTURE FLOOR: 577481030 cells clamped
+[INFO]     💧 BETTS-MILLER: 4606 cells active, 134.818 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.42 q_1250=22.51 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(363 cells, dq=0.000) L1(338, dq=-5.406) L2(305, dq=-11.969)
+[INFO]     🔬 COUPLING: q_gradient=0.91 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.1, COH=0.633
+    METRICS: Pmin:-0.00, Wmax:27.3 kts (Potential), LOCK:82.12%, COH:0.633
+[INFO] [INFO] Frame 9100: Max Wind 27.3 kts | θ′_max: 15.36 K
+[INFO]     🔥 BUOYANCY: Raw=0.4072 → Limited=0.3360 m/s² (clamp=17.5%)
+[INFO]     🌬️ UPDRAFT: Max w=36.56 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.82, Offset=0.1, COH=0.614
+    METRICS: Pmin:-0.00, Wmax:28.0 kts (Potential), LOCK:82.12%, COH:0.614
+[INFO] [INFO] Frame 9200: Max Wind 28.0 kts | θ′_max: 13.78 K
+[INFO]     🔥 BUOYANCY: Raw=0.3653 → Limited=0.3117 m/s² (clamp=14.7%)
+[INFO]     🌬️ UPDRAFT: Max w=35.35 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.0, COH=0.624
+    METRICS: Pmin:-0.00, Wmax:28.1 kts (Potential), LOCK:82.12%, COH:0.624
+[INFO] [INFO] Frame 9300: Max Wind 28.1 kts | θ′_max: 13.97 K
+[INFO]     🔥 BUOYANCY: Raw=0.3975 → Limited=0.3306 m/s² (clamp=16.8%)
+[INFO]     🌬️ UPDRAFT: Max w=35.05 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.1, COH=0.627
+    METRICS: Pmin:-0.00, Wmax:27.5 kts (Potential), LOCK:82.11%, COH:0.627
+[INFO] [INFO] Frame 9400: Max Wind 27.5 kts | θ′_max: 14.17 K
+[INFO]     🔥 BUOYANCY: Raw=0.4413 → Limited=0.3539 m/s² (clamp=19.8%)
+[INFO]     🌬️ UPDRAFT: Max w=34.79 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.82, Offset=0.2, COH=0.611
+    METRICS: Pmin:-0.00, Wmax:32.1 kts (Potential), LOCK:82.11%, COH:0.611
+[INFO] [INFO] Frame 9500: Max Wind 32.1 kts | θ′_max: 14.92 K
+[INFO]     🔥 BUOYANCY: Raw=0.3956 → Limited=0.3295 m/s² (clamp=16.7%)
+[INFO]     🌬️ UPDRAFT: Max w=33.83 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.54K, T_core=-14.1°C (Δ=-2.0)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.97 (reduction: 3%)
+[INFO]     🌀 NU_TURB: max=0.0342, mean=0.0007 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=1.00 g/kg (q_sat=24.2, q_sfc=23.2)
+[INFO]     💦 MOISTURE FLOOR: 608860453 cells clamped
+[INFO]     💧 BETTS-MILLER: 4965 cells active, 145.672 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.54 q_2500=23.52 g/kg
+[INFO]     🔬 BM LEVELS: L0(401 cells, dq=0.000) L1(348, dq=-5.850) L2(318, dq=-12.907)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.3, COH=0.623
+    METRICS: Pmin:-0.00, Wmax:34.1 kts (Potential), LOCK:82.11%, COH:0.623
+[INFO] [INFO] Frame 9600: Max Wind 34.1 kts | θ′_max: 15.16 K
+[INFO]     🔥 BUOYANCY: Raw=0.4019 → Limited=0.3331 m/s² (clamp=17.1%)
+[INFO]     🌬️ UPDRAFT: Max w=33.56 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.57, Track=0.82, Offset=0.3, COH=0.573
+    METRICS: Pmin:-0.00, Wmax:32.4 kts (Potential), LOCK:82.10%, COH:0.573
+[INFO] [INFO] Frame 9700: Max Wind 32.4 kts | θ′_max: 15.14 K
+[INFO]     🔥 BUOYANCY: Raw=0.4014 → Limited=0.3328 m/s² (clamp=17.1%)
+[INFO]     🌬️ UPDRAFT: Max w=34.96 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.2, COH=0.652
+    METRICS: Pmin:-0.00, Wmax:30.3 kts (Potential), LOCK:82.10%, COH:0.652
+[INFO] [INFO] Frame 9800: Max Wind 30.3 kts | θ′_max: 14.06 K
+[INFO]     🔥 BUOYANCY: Raw=0.4170 → Limited=0.3413 m/s² (clamp=18.2%)
+[INFO]     🌬️ UPDRAFT: Max w=35.29 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=26.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.2, COH=0.756
+    METRICS: Pmin:-0.00, Wmax:26.2 kts (Potential), LOCK:82.10%, COH:0.756
+[INFO] [INFO] Frame 9900: Max Wind 26.2 kts | θ′_max: 15.37 K
+[INFO]     🔥 BUOYANCY: Raw=0.4074 → Limited=0.3361 m/s² (clamp=17.5%)
+[INFO]     🌬️ UPDRAFT: Max w=35.24 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=25.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.3, COH=0.697
+    METRICS: Pmin:-0.00, Wmax:25.9 kts (Potential), LOCK:82.09%, COH:0.697
+[INFO] [INFO] Frame 10000: Max Wind 25.9 kts | θ′_max: 15.71 K
+[INFO]     🔥 BUOYANCY: Raw=0.4166 → Limited=0.3411 m/s² (clamp=18.1%)
+[INFO]     🌬️ UPDRAFT: Max w=33.57 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.59K, T_core=-14.2°C (Δ=-2.1)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.97 (reduction: 3%)
+[INFO]     🌀 NU_TURB: max=0.0350, mean=0.0008 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=0.64 g/kg (q_sat=24.2, q_sfc=23.6)
+[INFO]     💦 MOISTURE FLOOR: 640069687 cells clamped
+[INFO]     💧 BETTS-MILLER: 5407 cells active, 158.571 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.42 q_1250=22.54 q_2500=23.54 g/kg
+[INFO]     🔬 BM LEVELS: L0(435 cells, dq=0.000) L1(390, dq=-6.454) L2(355, dq=-14.097)
+[INFO]     🔬 COUPLING: q_gradient=0.88 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=26.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.3, COH=0.677
+    METRICS: Pmin:-0.00, Wmax:26.8 kts (Potential), LOCK:82.08%, COH:0.677
+[INFO] [INFO] Frame 10100: Max Wind 26.8 kts | θ′_max: 15.81 K
+[INFO]     🔥 BUOYANCY: Raw=0.4192 → Limited=0.3425 m/s² (clamp=18.3%)
+[INFO]     🌬️ UPDRAFT: Max w=33.78 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.654
+    METRICS: Pmin:-0.00, Wmax:27.8 kts (Potential), LOCK:82.08%, COH:0.654
+[INFO] [INFO] Frame 10200: Max Wind 27.8 kts | θ′_max: 15.53 K
+[INFO]     🔥 BUOYANCY: Raw=0.4118 → Limited=0.3385 m/s² (clamp=17.8%)
+[INFO]     🌬️ UPDRAFT: Max w=35.65 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=26.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.0, COH=0.645
+    METRICS: Pmin:-0.00, Wmax:26.1 kts (Potential), LOCK:82.08%, COH:0.645
+[INFO] [INFO] Frame 10300: Max Wind 26.1 kts | θ′_max: 15.64 K
+[INFO]     🔥 BUOYANCY: Raw=0.4147 → Limited=0.3401 m/s² (clamp=18.0%)
+[INFO]     🌬️ UPDRAFT: Max w=36.18 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.82, Offset=0.2, COH=0.611
+    METRICS: Pmin:-0.00, Wmax:28.8 kts (Potential), LOCK:82.08%, COH:0.611
+[INFO] [INFO] Frame 10400: Max Wind 28.8 kts | θ′_max: 15.81 K
+[INFO]     🔥 BUOYANCY: Raw=0.4192 → Limited=0.3425 m/s² (clamp=18.3%)
+[INFO]     🌬️ UPDRAFT: Max w=39.20 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.3, COH=0.624
+    METRICS: Pmin:-0.00, Wmax:33.8 kts (Potential), LOCK:82.07%, COH:0.624
+[INFO] [INFO] Frame 10500: Max Wind 33.8 kts | θ′_max: 15.99 K
+[INFO]     🔥 BUOYANCY: Raw=0.4241 → Limited=0.3451 m/s² (clamp=18.6%)
+[INFO]     🌬️ UPDRAFT: Max w=39.33 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.98K, T_core=-13.7°C (Δ=-1.7)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.97 (reduction: 3%)
+[INFO]     🌀 NU_TURB: max=0.0373, mean=0.0008 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=0.34 g/kg (q_sat=24.2, q_sfc=23.9)
+[INFO]     💦 MOISTURE FLOOR: 671232474 cells clamped
+[INFO]     💧 BETTS-MILLER: 5887 cells active, 175.850 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.54 q_2500=23.52 g/kg
+[INFO]     🔬 BM LEVELS: L0(478 cells, dq=0.000) L1(420, dq=-7.103) L2(389, dq=-15.710)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 12.1 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.73, Track=0.82, Offset=0.2, COH=0.734
+    METRICS: Pmin:-0.00, Wmax:35.7 kts (Potential), LOCK:82.07%, COH:0.734
+[INFO] [INFO] Frame 10600: Max Wind 35.7 kts | θ′_max: 14.73 K
+[INFO]     🔥 BUOYANCY: Raw=0.3904 → Limited=0.3266 m/s² (clamp=16.3%)
+[INFO]     🌬️ UPDRAFT: Max w=39.95 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.3, COH=0.691
+    METRICS: Pmin:-0.00, Wmax:33.4 kts (Potential), LOCK:82.06%, COH:0.691
+[INFO] [INFO] Frame 10700: Max Wind 33.4 kts | θ′_max: 15.15 K
+[INFO]     🔥 BUOYANCY: Raw=0.4018 → Limited=0.3330 m/s² (clamp=17.1%)
+[INFO]     🌬️ UPDRAFT: Max w=38.68 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.81, Offset=0.6, COH=0.670
+    METRICS: Pmin:-0.00, Wmax:32.1 kts (Potential), LOCK:82.05%, COH:0.670
+[INFO] [INFO] Frame 10800: Max Wind 32.1 kts | θ′_max: 15.83 K
+[INFO]     🔥 BUOYANCY: Raw=0.4198 → Limited=0.3428 m/s² (clamp=18.3%)
+[INFO]     🌬️ UPDRAFT: Max w=37.36 m/s
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-4.8, 1.5) m/s, σ=(3.7, 3.7)
+[INFO]     🧭 STEERING: u=-4.8, v=1.5 m/s (9.7 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 19:12...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=+0.0, v=-1.1 m/s (weight=4.0)
+        300 hPa: u=-5.3, v=+2.1 m/s (weight=2.0)
+        400 hPa: u=+1.3, v=+9.5 m/s (weight=1.0)
+        500 hPa: u=-1.7, v=+11.1 m/s (weight=1.0)
+        600 hPa: u=-5.5, v=+11.7 m/s (weight=1.0)
+        700 hPa: u=-4.4, v=+12.2 m/s (weight=1.0)
+        850 hPa: u=-4.3, v=+7.2 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-2.4, v=+4.2 m/s
+     🏝️ Land Fraction processed: 0.0% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.30°N, -20.94°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.81, Offset=0.6, COH=0.690
+    METRICS: Pmin:-0.00, Wmax:33.2 kts (Potential), LOCK:82.03%, COH:0.690
+[INFO] [INFO] Frame 10900: Max Wind 33.2 kts | θ′_max: 15.41 K
+[INFO]     🔥 BUOYANCY: Raw=0.4085 → Limited=0.3367 m/s² (clamp=17.6%)
+[INFO]     🌬️ UPDRAFT: Max w=36.97 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.81, Offset=0.6, COH=0.687
+    METRICS: Pmin:-0.00, Wmax:34.9 kts (Potential), LOCK:82.02%, COH:0.687
+[INFO] [INFO] Frame 11000: Max Wind 34.9 kts | θ′_max: 15.21 K
+[INFO]     🔥 BUOYANCY: Raw=0.4033 → Limited=0.3339 m/s² (clamp=17.2%)
+[INFO]     🌬️ UPDRAFT: Max w=38.88 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.07K, T_core=-13.7°C (Δ=-1.7)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.96 (reduction: 4%)
+[INFO]     🌀 NU_TURB: max=0.0343, mean=0.0009 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=0.00 g/kg (q_sat=24.2, q_sfc=24.2)
+[INFO]     💦 MOISTURE FLOOR: 702423613 cells clamped
+[INFO]     💧 BETTS-MILLER: 6373 cells active, 192.105 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.38 q_1250=22.51 q_2500=23.50 g/kg
+[INFO]     🔬 BM LEVELS: L0(493 cells, dq=0.000) L1(448, dq=-7.727) L2(417, dq=-17.022)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.81, Offset=0.4, COH=0.649
+    METRICS: Pmin:-0.00, Wmax:32.9 kts (Potential), LOCK:82.01%, COH:0.649
+[INFO] [INFO] Frame 11100: Max Wind 32.9 kts | θ′_max: 15.62 K
+[INFO]     🔥 BUOYANCY: Raw=0.4142 → Limited=0.3398 m/s² (clamp=18.0%)
+[INFO]     🌬️ UPDRAFT: Max w=39.15 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.1, COH=0.676
+    METRICS: Pmin:-0.00, Wmax:33.5 kts (Potential), LOCK:82.01%, COH:0.676
+[INFO] [INFO] Frame 11200: Max Wind 33.5 kts | θ′_max: 15.70 K
+[INFO]     🔥 BUOYANCY: Raw=0.4162 → Limited=0.3409 m/s² (clamp=18.1%)
+[INFO]     🌬️ UPDRAFT: Max w=38.09 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.2, COH=0.668
+    METRICS: Pmin:-0.00, Wmax:30.2 kts (Potential), LOCK:82.01%, COH:0.668
+[INFO] [INFO] Frame 11300: Max Wind 30.2 kts | θ′_max: 15.33 K
+[INFO]     🔥 BUOYANCY: Raw=0.4066 → Limited=0.3357 m/s² (clamp=17.4%)
+[INFO]     🌬️ UPDRAFT: Max w=39.24 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.1, COH=0.744
+    METRICS: Pmin:-0.00, Wmax:30.7 kts (Potential), LOCK:82.01%, COH:0.744
+[INFO] [INFO] Frame 11400: Max Wind 30.7 kts | θ′_max: 15.33 K
+[INFO]     🔥 BUOYANCY: Raw=0.4064 → Limited=0.3355 m/s² (clamp=17.4%)
+[INFO]     🌬️ UPDRAFT: Max w=39.10 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.1, COH=0.629
+    METRICS: Pmin:-0.00, Wmax:31.4 kts (Potential), LOCK:82.00%, COH:0.629
+[INFO] [INFO] Frame 11500: Max Wind 31.4 kts | θ′_max: 15.75 K
+[INFO]     🔥 BUOYANCY: Raw=0.4176 → Limited=0.3416 m/s² (clamp=18.2%)
+[INFO]     🌬️ UPDRAFT: Max w=39.06 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.89K, T_core=-13.6°C (Δ=-1.5)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.96 (reduction: 4%)
+[INFO]     🌀 NU_TURB: max=0.0330, mean=0.0009 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.20 g/kg (q_sat=24.2, q_sfc=24.4)
+[INFO]     💦 MOISTURE FLOOR: 733565072 cells clamped
+[INFO]     💧 BETTS-MILLER: 6920 cells active, 210.756 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.36 q_1250=22.50 q_2500=23.46 g/kg
+[INFO]     🔬 BM LEVELS: L0(590 cells, dq=0.000) L1(484, dq=-8.323) L2(450, dq=-18.475)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=27.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.3, COH=0.633
+    METRICS: Pmin:-0.00, Wmax:27.7 kts (Potential), LOCK:82.00%, COH:0.633
+[INFO] [INFO] Frame 11600: Max Wind 27.7 kts | θ′_max: 14.79 K
+[INFO]     🔥 BUOYANCY: Raw=0.3921 → Limited=0.3276 m/s² (clamp=16.5%)
+[INFO]     🌬️ UPDRAFT: Max w=39.03 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.2, COH=0.666
+    METRICS: Pmin:-0.00, Wmax:29.9 kts (Potential), LOCK:81.99%, COH:0.666
+[INFO] [INFO] Frame 11700: Max Wind 29.9 kts | θ′_max: 15.71 K
+[INFO]     🔥 BUOYANCY: Raw=0.4165 → Limited=0.3410 m/s² (clamp=18.1%)
+[INFO]     🌬️ UPDRAFT: Max w=40.07 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.1, COH=0.665
+    METRICS: Pmin:-0.00, Wmax:30.6 kts (Potential), LOCK:81.99%, COH:0.665
+[INFO] [INFO] Frame 11800: Max Wind 30.6 kts | θ′_max: 15.68 K
+[INFO]     🔥 BUOYANCY: Raw=0.4159 → Limited=0.3407 m/s² (clamp=18.1%)
+[INFO]     🌬️ UPDRAFT: Max w=38.98 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.0, COH=0.674
+    METRICS: Pmin:-0.00, Wmax:32.2 kts (Potential), LOCK:81.99%, COH:0.674
+[INFO] [INFO] Frame 11900: Max Wind 32.2 kts | θ′_max: 15.19 K
+[INFO]     🔥 BUOYANCY: Raw=0.4028 → Limited=0.3336 m/s² (clamp=17.2%)
+[INFO]     🌬️ UPDRAFT: Max w=39.35 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.1, COH=0.700
+    METRICS: Pmin:-0.00, Wmax:33.2 kts (Potential), LOCK:81.99%, COH:0.700
+[INFO] [INFO] Frame 12000: Max Wind 33.2 kts | θ′_max: 17.17 K
+[INFO]     🔥 BUOYANCY: Raw=0.4553 → Limited=0.3607 m/s² (clamp=20.8%)
+[INFO]     🌬️ UPDRAFT: Max w=40.15 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.98K, T_core=-13.7°C (Δ=-1.6)
+[INFO]     📉 STRATIFICATION: eff=0.98, eff_updraft=0.96 (reduction: 4%)
+[INFO]     🌀 NU_TURB: max=0.0338, mean=0.0009 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.45 g/kg (q_sat=24.2, q_sfc=24.7)
+[INFO]     💦 MOISTURE FLOOR: 764780817 cells clamped
+[INFO]     💧 BETTS-MILLER: 7396 cells active, 223.577 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.34 q_1250=22.50 q_2500=23.46 g/kg
+[INFO]     🔬 BM LEVELS: L0(665 cells, dq=0.000) L1(524, dq=-8.911) L2(474, dq=-19.791)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.2, COH=0.687
+    METRICS: Pmin:-0.00, Wmax:32.8 kts (Potential), LOCK:81.99%, COH:0.687
+[INFO] [INFO] Frame 12100: Max Wind 32.8 kts | θ′_max: 16.99 K
+[INFO]     🔥 BUOYANCY: Raw=0.4505 → Limited=0.3584 m/s² (clamp=20.4%)
+[INFO]     🌬️ UPDRAFT: Max w=40.76 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.3, COH=0.700
+    METRICS: Pmin:-0.00, Wmax:34.9 kts (Potential), LOCK:81.98%, COH:0.700
+[INFO] [INFO] Frame 12200: Max Wind 34.9 kts | θ′_max: 16.75 K
+[INFO]     🔥 BUOYANCY: Raw=0.4442 → Limited=0.3553 m/s² (clamp=20.0%)
+[INFO]     🌬️ UPDRAFT: Max w=40.47 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.81, Offset=0.4, COH=0.701
+    METRICS: Pmin:-0.00, Wmax:34.8 kts (Potential), LOCK:81.97%, COH:0.701
+[INFO] [INFO] Frame 12300: Max Wind 34.8 kts | θ′_max: 19.65 K
+[INFO]     🔥 BUOYANCY: Raw=0.5209 → Limited=0.3893 m/s² (clamp=25.3%)
+[INFO]     🌬️ UPDRAFT: Max w=40.22 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.81, Offset=0.5, COH=0.653
+    METRICS: Pmin:-0.00, Wmax:31.7 kts (Potential), LOCK:81.96%, COH:0.653
+[INFO] [INFO] Frame 12400: Max Wind 31.7 kts | θ′_max: 20.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.5313 → Limited=0.3933 m/s² (clamp=26.0%)
+[INFO]     🌬️ UPDRAFT: Max w=38.42 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.3, COH=0.637
+    METRICS: Pmin:-0.00, Wmax:29.0 kts (Potential), LOCK:81.96%, COH:0.637
+[INFO] [INFO] Frame 12500: Max Wind 29.0 kts | θ′_max: 18.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.4783 → Limited=0.3714 m/s² (clamp=22.4%)
+[INFO]     🌬️ UPDRAFT: Max w=40.85 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-1.92K, T_core=-13.6°C (Δ=-1.6)
+[INFO]     📉 STRATIFICATION: eff=0.97, eff_updraft=0.96 (reduction: 4%)
+[INFO]     🌀 NU_TURB: max=0.0417, mean=0.0010 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.67 g/kg (q_sat=24.2, q_sfc=24.9)
+[INFO]     💦 MOISTURE FLOOR: 795742695 cells clamped
+[INFO]     💧 BETTS-MILLER: 8018 cells active, 241.833 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.34 q_1250=22.45 q_2500=23.47 g/kg
+[INFO]     🔬 BM LEVELS: L0(729 cells, dq=0.000) L1(565, dq=-9.581) L2(507, dq=-21.132)
+[INFO]     🔬 COUPLING: q_gradient=0.87 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=28.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.3, COH=0.616
+    METRICS: Pmin:-0.00, Wmax:28.6 kts (Potential), LOCK:81.95%, COH:0.616
+[INFO] [INFO] Frame 12600: Max Wind 28.6 kts | θ′_max: 15.55 K
+[INFO]     🔥 BUOYANCY: Raw=0.4124 → Limited=0.3389 m/s² (clamp=17.8%)
+[INFO]     🌬️ UPDRAFT: Max w=39.48 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.81, Offset=0.5, COH=0.653
+    METRICS: Pmin:-0.00, Wmax:29.1 kts (Potential), LOCK:81.94%, COH:0.653
+[INFO] [INFO] Frame 12700: Max Wind 29.1 kts | θ′_max: 14.82 K
+[INFO]     🔥 BUOYANCY: Raw=0.3930 → Limited=0.3281 m/s² (clamp=16.5%)
+[INFO]     🌬️ UPDRAFT: Max w=43.09 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=29.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.81, Offset=0.4, COH=0.687
+    METRICS: Pmin:-0.00, Wmax:29.9 kts (Potential), LOCK:81.93%, COH:0.687
+[INFO] [INFO] Frame 12800: Max Wind 29.9 kts | θ′_max: 15.13 K
+[INFO]     🔥 BUOYANCY: Raw=0.4012 → Limited=0.3327 m/s² (clamp=17.1%)
+[INFO]     🌬️ UPDRAFT: Max w=41.15 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.81, Offset=0.4, COH=0.659
+    METRICS: Pmin:-0.00, Wmax:31.1 kts (Potential), LOCK:81.93%, COH:0.659
+[INFO] [INFO] Frame 12900: Max Wind 31.1 kts | θ′_max: 15.58 K
+[INFO]     🔥 BUOYANCY: Raw=0.4132 → Limited=0.3393 m/s² (clamp=17.9%)
+[INFO]     🌬️ UPDRAFT: Max w=40.97 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=30.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.82, Offset=0.3, COH=0.748
+    METRICS: Pmin:-0.00, Wmax:30.7 kts (Potential), LOCK:81.92%, COH:0.748
+[INFO] [INFO] Frame 13000: Max Wind 30.7 kts | θ′_max: 15.46 K
+[INFO]     🔥 BUOYANCY: Raw=0.4100 → Limited=0.3375 m/s² (clamp=17.7%)
+[INFO]     🌬️ UPDRAFT: Max w=40.80 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.42K, T_core=-14.0°C (Δ=-2.0)
+[INFO]     📉 STRATIFICATION: eff=0.97, eff_updraft=0.95 (reduction: 5%)
+[INFO]     🌀 NU_TURB: max=0.0322, mean=0.0010 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.80 g/kg (q_sat=24.2, q_sfc=25.0)
+[INFO]     💦 MOISTURE FLOOR: 826579576 cells clamped
+[INFO]     💧 BETTS-MILLER: 8699 cells active, 258.592 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.33 q_1250=22.48 q_2500=23.46 g/kg
+[INFO]     🔬 BM LEVELS: L0(851 cells, dq=0.000) L1(615, dq=-10.388) L2(575, dq=-22.875)
+[INFO]     🔬 COUPLING: q_gradient=0.88 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.82, Offset=0.2, COH=0.717
+    METRICS: Pmin:-0.00, Wmax:35.0 kts (Potential), LOCK:81.92%, COH:0.717
+[INFO] [INFO] Frame 13100: Max Wind 35.0 kts | θ′_max: 16.07 K
+[INFO]     🔥 BUOYANCY: Raw=0.4260 → Limited=0.3461 m/s² (clamp=18.8%)
+[INFO]     🌬️ UPDRAFT: Max w=41.21 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.2, COH=0.691
+    METRICS: Pmin:-0.00, Wmax:34.7 kts (Potential), LOCK:81.92%, COH:0.691
+[INFO] [INFO] Frame 13200: Max Wind 34.7 kts | θ′_max: 16.65 K
+[INFO]     🔥 BUOYANCY: Raw=0.4415 → Limited=0.3540 m/s² (clamp=19.8%)
+[INFO]     🌬️ UPDRAFT: Max w=42.35 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.82, Offset=0.2, COH=0.746
+    METRICS: Pmin:-0.00, Wmax:31.4 kts (Potential), LOCK:81.91%, COH:0.746
+[INFO] [INFO] Frame 13300: Max Wind 31.4 kts | θ′_max: 17.27 K
+[INFO]     🔥 BUOYANCY: Raw=0.4578 → Limited=0.3619 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=45.76 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.78, Track=0.82, Offset=0.3, COH=0.778
+    METRICS: Pmin:-0.00, Wmax:34.0 kts (Potential), LOCK:81.91%, COH:0.778
+[INFO] [INFO] Frame 13400: Max Wind 34.0 kts | θ′_max: 18.01 K
+[INFO]     🔥 BUOYANCY: Raw=0.4776 → Limited=0.3711 m/s² (clamp=22.3%)
+[INFO]     🌬️ UPDRAFT: Max w=43.43 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.81, Offset=0.5, COH=0.679
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.90%, COH:0.679
+[INFO] [INFO] Frame 13500: Max Wind 35.4 kts | θ′_max: 17.86 K
+[INFO]     🔥 BUOYANCY: Raw=0.4735 → Limited=0.3692 m/s² (clamp=22.0%)
+[INFO]     🌬️ UPDRAFT: Max w=42.16 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.33K, T_core=-14.0°C (Δ=-1.9)
+[INFO]     📉 STRATIFICATION: eff=0.97, eff_updraft=0.95 (reduction: 5%)
+[INFO]     🌀 NU_TURB: max=0.0350, mean=0.0010 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.92 g/kg (q_sat=24.2, q_sfc=25.1)
+[INFO]     💦 MOISTURE FLOOR: 857383030 cells clamped
+[INFO]     💧 BETTS-MILLER: 9352 cells active, 279.023 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.36 q_1250=22.48 q_2500=23.47 g/kg
+[INFO]     🔬 BM LEVELS: L0(892 cells, dq=0.000) L1(651, dq=-11.191) L2(605, dq=-24.832)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.81, Offset=0.5, COH=0.624
+    METRICS: Pmin:-0.00, Wmax:35.9 kts (Potential), LOCK:81.89%, COH:0.624
+[INFO] [INFO] Frame 13600: Max Wind 35.9 kts | θ′_max: 19.71 K
+[INFO]     🔥 BUOYANCY: Raw=0.5226 → Limited=0.3900 m/s² (clamp=25.4%)
+[INFO]     🌬️ UPDRAFT: Max w=43.48 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.81, Offset=0.5, COH=0.614
+    METRICS: Pmin:-0.00, Wmax:32.6 kts (Potential), LOCK:81.88%, COH:0.614
+[INFO] [INFO] Frame 13700: Max Wind 32.6 kts | θ′_max: 16.39 K
+[INFO]     🔥 BUOYANCY: Raw=0.4345 → Limited=0.3504 m/s² (clamp=19.3%)
+[INFO]     🌬️ UPDRAFT: Max w=44.55 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.81, Offset=0.5, COH=0.618
+    METRICS: Pmin:-0.00, Wmax:33.1 kts (Potential), LOCK:81.87%, COH:0.618
+[INFO] [INFO] Frame 13800: Max Wind 33.1 kts | θ′_max: 16.13 K
+[INFO]     🔥 BUOYANCY: Raw=0.4277 → Limited=0.3469 m/s² (clamp=18.9%)
+[INFO]     🌬️ UPDRAFT: Max w=46.04 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.81, Offset=0.4, COH=0.636
+    METRICS: Pmin:-0.00, Wmax:35.1 kts (Potential), LOCK:81.86%, COH:0.636
+[INFO] [INFO] Frame 13900: Max Wind 35.1 kts | θ′_max: 17.43 K
+[INFO]     🔥 BUOYANCY: Raw=0.4621 → Limited=0.3639 m/s² (clamp=21.2%)
+[INFO]     🌬️ UPDRAFT: Max w=47.11 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.2, COH=0.635
+    METRICS: Pmin:-0.00, Wmax:33.2 kts (Potential), LOCK:81.86%, COH:0.635
+[INFO] [INFO] Frame 14000: Max Wind 33.2 kts | θ′_max: 17.29 K
+[INFO]     🔥 BUOYANCY: Raw=0.4584 → Limited=0.3622 m/s² (clamp=21.0%)
+[INFO]     🌬️ UPDRAFT: Max w=41.71 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.50K, T_core=-14.1°C (Δ=-2.0)
+[INFO]     📉 STRATIFICATION: eff=0.97, eff_updraft=0.95 (reduction: 5%)
+[INFO]     🌀 NU_TURB: max=0.0329, mean=0.0011 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.98 g/kg (q_sat=24.2, q_sfc=25.2)
+[INFO]     💦 MOISTURE FLOOR: 888100214 cells clamped
+[INFO]     💧 BETTS-MILLER: 10186 cells active, 305.377 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.40 q_1250=22.52 q_2500=23.49 g/kg
+[INFO]     🔬 BM LEVELS: L0(1009 cells, dq=0.000) L1(704, dq=-12.055) L2(645, dq=-26.647)
+[INFO]     🔬 COUPLING: q_gradient=0.92 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.7 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=32.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.3, COH=0.649
+    METRICS: Pmin:-0.00, Wmax:32.0 kts (Potential), LOCK:81.85%, COH:0.649
+[INFO] [INFO] Frame 14100: Max Wind 32.0 kts | θ′_max: 16.84 K
+[INFO]     🔥 BUOYANCY: Raw=0.4466 → Limited=0.3565 m/s² (clamp=20.2%)
+[INFO]     🌬️ UPDRAFT: Max w=45.79 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.1, COH=0.628
+    METRICS: Pmin:-0.00, Wmax:33.3 kts (Potential), LOCK:81.85%, COH:0.628
+[INFO] [INFO] Frame 14200: Max Wind 33.3 kts | θ′_max: 17.49 K
+[INFO]     🔥 BUOYANCY: Raw=0.4637 → Limited=0.3647 m/s² (clamp=21.4%)
+[INFO]     🌬️ UPDRAFT: Max w=49.11 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.82, Offset=0.2, COH=0.662
+    METRICS: Pmin:-0.00, Wmax:33.8 kts (Potential), LOCK:81.85%, COH:0.662
+[INFO] [INFO] Frame 14300: Max Wind 33.8 kts | θ′_max: 17.78 K
+[INFO]     🔥 BUOYANCY: Raw=0.4715 → Limited=0.3683 m/s² (clamp=21.9%)
+[INFO]     🌬️ UPDRAFT: Max w=41.95 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.82, Offset=0.1, COH=0.654
+    METRICS: Pmin:-0.00, Wmax:35.3 kts (Potential), LOCK:81.85%, COH:0.654
+[INFO] [INFO] Frame 14400: Max Wind 35.3 kts | θ′_max: 16.88 K
+[INFO]     🔥 BUOYANCY: Raw=0.4475 → Limited=0.3569 m/s² (clamp=20.2%)
+[INFO]     🌬️ UPDRAFT: Max w=49.25 m/s
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-4.9, 2.0) m/s, σ=(3.8, 3.6)
+[INFO]     🧭 STEERING: u=-4.9, v=2.0 m/s (10.3 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 21:36...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-1.3, v=-1.8 m/s (weight=4.0)
+        300 hPa: u=-7.7, v=+2.4 m/s (weight=2.0)
+        400 hPa: u=-0.6, v=+11.3 m/s (weight=1.0)
+        500 hPa: u=-5.0, v=+12.4 m/s (weight=1.0)
+        600 hPa: u=-6.7, v=+12.5 m/s (weight=1.0)
+        700 hPa: u=-4.7, v=+12.3 m/s (weight=1.0)
+        850 hPa: u=-5.1, v=+8.1 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-4.1, v=+4.4 m/s
+     🏝️ Land Fraction processed: 0.1% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.41°N, -21.32°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.59, Track=0.82, Offset=0.2, COH=0.592
+    METRICS: Pmin:-0.00, Wmax:33.5 kts (Potential), LOCK:81.85%, COH:0.592
+[INFO] [INFO] Frame 14500: Max Wind 33.5 kts | θ′_max: 15.82 K
+[INFO]     🔥 BUOYANCY: Raw=0.4195 → Limited=0.3426 m/s² (clamp=18.3%)
+[INFO]     🌬️ UPDRAFT: Max w=46.15 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.05K, T_core=-13.7°C (Δ=-1.5)
+[INFO]     📉 STRATIFICATION: eff=0.97, eff_updraft=0.94 (reduction: 6%)
+[INFO]     🌀 NU_TURB: max=0.0355, mean=0.0011 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.99 g/kg (q_sat=24.2, q_sfc=25.2)
+[INFO]     💦 MOISTURE FLOOR: 918810342 cells clamped
+[INFO]     💧 BETTS-MILLER: 10983 cells active, 330.173 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.42 q_1250=22.61 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(1120 cells, dq=0.000) L1(779, dq=-13.237) L2(707, dq=-29.084)
+[INFO]     🔬 COUPLING: q_gradient=0.92 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.82, Offset=0.2, COH=0.607
+    METRICS: Pmin:-0.00, Wmax:31.8 kts (Potential), LOCK:81.84%, COH:0.607
+[INFO] [INFO] Frame 14600: Max Wind 31.8 kts | θ′_max: 15.93 K
+[INFO]     🔥 BUOYANCY: Raw=0.4225 → Limited=0.3442 m/s² (clamp=18.5%)
+[INFO]     🌬️ UPDRAFT: Max w=46.75 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.2, COH=0.637
+    METRICS: Pmin:-0.00, Wmax:33.6 kts (Potential), LOCK:81.84%, COH:0.637
+[INFO] [INFO] Frame 14700: Max Wind 33.6 kts | θ′_max: 16.68 K
+[INFO]     🔥 BUOYANCY: Raw=0.4423 → Limited=0.3544 m/s² (clamp=19.9%)
+[INFO]     🌬️ UPDRAFT: Max w=48.10 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.3, COH=0.674
+    METRICS: Pmin:-0.00, Wmax:33.8 kts (Potential), LOCK:81.83%, COH:0.674
+[INFO] [INFO] Frame 14800: Max Wind 33.8 kts | θ′_max: 17.21 K
+[INFO]     🔥 BUOYANCY: Raw=0.4564 → Limited=0.3613 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=48.20 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.81, Offset=0.4, COH=0.707
+    METRICS: Pmin:-0.00, Wmax:34.4 kts (Potential), LOCK:81.82%, COH:0.707
+[INFO] [INFO] Frame 14900: Max Wind 34.4 kts | θ′_max: 17.23 K
+[INFO]     🔥 BUOYANCY: Raw=0.4568 → Limited=0.3614 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=48.66 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.81, Offset=0.6, COH=0.773
+    METRICS: Pmin:-0.00, Wmax:38.9 kts (Potential), LOCK:81.81%, COH:0.773
+[INFO] [INFO] Frame 15000: Max Wind 38.9 kts | θ′_max: 17.26 K
+[INFO]     🔥 BUOYANCY: Raw=0.4575 → Limited=0.3618 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=48.01 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.08K, T_core=-13.8°C (Δ=-1.5)
+[INFO]     📉 STRATIFICATION: eff=0.96, eff_updraft=0.94 (reduction: 6%)
+[INFO]     🌀 NU_TURB: max=0.0346, mean=0.0012 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.92 g/kg (q_sat=24.2, q_sfc=25.1)
+[INFO]     💦 MOISTURE FLOOR: 949598298 cells clamped
+[INFO]     💧 BETTS-MILLER: 11754 cells active, 352.999 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.52 q_2500=23.52 g/kg
+[INFO]     🔬 BM LEVELS: L0(1211 cells, dq=0.000) L1(841, dq=-14.064) L2(747, dq=-30.987)
+[INFO]     🔬 COUPLING: q_gradient=0.89 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=42.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.80, Track=0.81, Offset=0.6, COH=0.797
+    METRICS: Pmin:-0.00, Wmax:42.5 kts (TS), LOCK:81.80%, COH:0.797
+[INFO] [INFO] Frame 15100: Max Wind 42.5 kts | θ′_max: 17.30 K
+[INFO]     🔥 BUOYANCY: Raw=0.4586 → Limited=0.3623 m/s² (clamp=21.0%)
+[INFO]     🌬️ UPDRAFT: Max w=45.59 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=43.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.81, Offset=0.6, COH=0.713
+    METRICS: Pmin:-0.00, Wmax:43.1 kts (TS), LOCK:81.78%, COH:0.713
+[INFO] [INFO] Frame 15200: Max Wind 43.1 kts | θ′_max: 17.27 K
+[INFO]     🔥 BUOYANCY: Raw=0.4579 → Limited=0.3619 m/s² (clamp=21.0%)
+[INFO]     🌬️ UPDRAFT: Max w=44.26 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.81, Offset=0.5, COH=0.685
+    METRICS: Pmin:-0.00, Wmax:36.2 kts (Potential), LOCK:81.77%, COH:0.685
+[INFO] [INFO] Frame 15300: Max Wind 36.2 kts | θ′_max: 17.41 K
+[INFO]     🔥 BUOYANCY: Raw=0.4616 → Limited=0.3637 m/s² (clamp=21.2%)
+[INFO]     🌬️ UPDRAFT: Max w=44.41 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.81, Offset=0.4, COH=0.700
+    METRICS: Pmin:-0.00, Wmax:31.2 kts (Potential), LOCK:81.77%, COH:0.700
+[INFO] [INFO] Frame 15400: Max Wind 31.2 kts | θ′_max: 17.65 K
+[INFO]     🔥 BUOYANCY: Raw=0.4679 → Limited=0.3667 m/s² (clamp=21.6%)
+[INFO]     🌬️ UPDRAFT: Max w=45.14 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.82, Offset=0.3, COH=0.739
+    METRICS: Pmin:-0.00, Wmax:34.4 kts (Potential), LOCK:81.76%, COH:0.739
+[INFO] [INFO] Frame 15500: Max Wind 34.4 kts | θ′_max: 17.12 K
+[INFO]     🔥 BUOYANCY: Raw=0.4539 → Limited=0.3600 m/s² (clamp=20.7%)
+[INFO]     🌬️ UPDRAFT: Max w=47.95 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.06K, T_core=-13.7°C (Δ=-1.4)
+[INFO]     📉 STRATIFICATION: eff=0.96, eff_updraft=0.93 (reduction: 7%)
+[INFO]     🌀 NU_TURB: max=0.0366, mean=0.0013 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.85 g/kg (q_sat=24.2, q_sfc=25.1)
+[INFO]     💦 MOISTURE FLOOR: 980136103 cells clamped
+[INFO]     💧 BETTS-MILLER: 12697 cells active, 378.998 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.42 q_1250=22.54 q_2500=23.50 g/kg
+[INFO]     🔬 BM LEVELS: L0(1316 cells, dq=0.000) L1(914, dq=-15.067) L2(815, dq=-33.298)
+[INFO]     🔬 COUPLING: q_gradient=0.92 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.3, COH=0.671
+    METRICS: Pmin:-0.00, Wmax:37.2 kts (Potential), LOCK:81.75%, COH:0.671
+[INFO] [INFO] Frame 15600: Max Wind 37.2 kts | θ′_max: 17.65 K
+[INFO]     🔥 BUOYANCY: Raw=0.4679 → Limited=0.3667 m/s² (clamp=21.6%)
+[INFO]     🌬️ UPDRAFT: Max w=48.01 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.2, COH=0.641
+    METRICS: Pmin:-0.00, Wmax:36.4 kts (Potential), LOCK:81.75%, COH:0.641
+[INFO] [INFO] Frame 15700: Max Wind 36.4 kts | θ′_max: 17.48 K
+[INFO]     🔥 BUOYANCY: Raw=0.4636 → Limited=0.3646 m/s² (clamp=21.3%)
+[INFO]     🌬️ UPDRAFT: Max w=46.49 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.3, COH=0.635
+    METRICS: Pmin:-0.00, Wmax:34.5 kts (Potential), LOCK:81.75%, COH:0.635
+[INFO] [INFO] Frame 15800: Max Wind 34.5 kts | θ′_max: 18.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.4783 → Limited=0.3714 m/s² (clamp=22.4%)
+[INFO]     🌬️ UPDRAFT: Max w=46.15 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.81, Offset=0.4, COH=0.619
+    METRICS: Pmin:-0.00, Wmax:34.8 kts (Potential), LOCK:81.74%, COH:0.619
+[INFO] [INFO] Frame 15900: Max Wind 34.8 kts | θ′_max: 18.03 K
+[INFO]     🔥 BUOYANCY: Raw=0.4780 → Limited=0.3712 m/s² (clamp=22.3%)
+[INFO]     🌬️ UPDRAFT: Max w=44.34 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.81, Offset=0.4, COH=0.647
+    METRICS: Pmin:-0.00, Wmax:33.8 kts (Potential), LOCK:81.73%, COH:0.647
+[INFO] [INFO] Frame 16000: Max Wind 33.8 kts | θ′_max: 18.49 K
+[INFO]     🔥 BUOYANCY: Raw=0.4903 → Limited=0.3766 m/s² (clamp=23.2%)
+[INFO]     🌬️ UPDRAFT: Max w=43.75 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.95K, T_core=-14.5°C (Δ=-2.5)
+[INFO]     📉 STRATIFICATION: eff=0.96, eff_updraft=0.93 (reduction: 7%)
+[INFO]     🌀 NU_TURB: max=0.0367, mean=0.0013 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.76 g/kg (q_sat=24.2, q_sfc=25.0)
+[INFO]     💦 MOISTURE FLOOR: 1010542210 cells clamped
+[INFO]     💧 BETTS-MILLER: 13604 cells active, 402.187 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.54 q_2500=23.49 g/kg
+[INFO]     🔬 BM LEVELS: L0(1401 cells, dq=0.000) L1(998, dq=-16.185) L2(879, dq=-35.626)
+[INFO]     🔬 COUPLING: q_gradient=0.91 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.81, Offset=0.5, COH=0.619
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.72%, COH:0.619
+[INFO] [INFO] Frame 16100: Max Wind 35.4 kts | θ′_max: 18.06 K
+[INFO]     🔥 BUOYANCY: Raw=0.4788 → Limited=0.3716 m/s² (clamp=22.4%)
+[INFO]     🌬️ UPDRAFT: Max w=46.23 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.81, Offset=0.5, COH=0.626
+    METRICS: Pmin:-0.00, Wmax:35.1 kts (Potential), LOCK:81.71%, COH:0.626
+[INFO] [INFO] Frame 16200: Max Wind 35.1 kts | θ′_max: 17.39 K
+[INFO]     🔥 BUOYANCY: Raw=0.4612 → Limited=0.3635 m/s² (clamp=21.2%)
+[INFO]     🌬️ UPDRAFT: Max w=47.26 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.81, Offset=0.5, COH=0.647
+    METRICS: Pmin:-0.00, Wmax:33.9 kts (Potential), LOCK:81.70%, COH:0.647
+[INFO] [INFO] Frame 16300: Max Wind 33.9 kts | θ′_max: 16.19 K
+[INFO]     🔥 BUOYANCY: Raw=0.4292 → Limited=0.3477 m/s² (clamp=19.0%)
+[INFO]     🌬️ UPDRAFT: Max w=47.67 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.82, Offset=0.3, COH=0.641
+    METRICS: Pmin:-0.00, Wmax:31.9 kts (Potential), LOCK:81.70%, COH:0.641
+[INFO] [INFO] Frame 16400: Max Wind 31.9 kts | θ′_max: 16.37 K
+[INFO]     🔥 BUOYANCY: Raw=0.4342 → Limited=0.3503 m/s² (clamp=19.3%)
+[INFO]     🌬️ UPDRAFT: Max w=47.41 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.0, COH=0.679
+    METRICS: Pmin:-0.00, Wmax:34.3 kts (Potential), LOCK:81.70%, COH:0.679
+[INFO] [INFO] Frame 16500: Max Wind 34.3 kts | θ′_max: 16.81 K
+[INFO]     🔥 BUOYANCY: Raw=0.4457 → Limited=0.3561 m/s² (clamp=20.1%)
+[INFO]     🌬️ UPDRAFT: Max w=46.79 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.79K, T_core=-14.3°C (Δ=-1.9)
+[INFO]     📉 STRATIFICATION: eff=0.96, eff_updraft=0.93 (reduction: 7%)
+[INFO]     🌀 NU_TURB: max=0.0357, mean=0.0014 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.65 g/kg (q_sat=24.2, q_sfc=24.9)
+[INFO]     💦 MOISTURE FLOOR: 1041065212 cells clamped
+[INFO]     💧 BETTS-MILLER: 14776 cells active, 431.827 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.40 q_1250=22.52 q_2500=23.46 g/kg
+[INFO]     🔬 BM LEVELS: L0(1503 cells, dq=0.000) L1(1132, dq=-17.401) L2(945, dq=-38.181)
+[INFO]     🔬 COUPLING: q_gradient=0.93 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.73, Track=0.82, Offset=0.1, COH=0.734
+    METRICS: Pmin:-0.00, Wmax:36.0 kts (Potential), LOCK:81.70%, COH:0.734
+[INFO] [INFO] Frame 16600: Max Wind 36.0 kts | θ′_max: 16.96 K
+[INFO]     🔥 BUOYANCY: Raw=0.4497 → Limited=0.3580 m/s² (clamp=20.4%)
+[INFO]     🌬️ UPDRAFT: Max w=46.76 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.82, Offset=0.1, COH=0.714
+    METRICS: Pmin:-0.00, Wmax:34.9 kts (Potential), LOCK:81.70%, COH:0.714
+[INFO] [INFO] Frame 16700: Max Wind 34.9 kts | θ′_max: 17.78 K
+[INFO]     🔥 BUOYANCY: Raw=0.4714 → Limited=0.3683 m/s² (clamp=21.9%)
+[INFO]     🌬️ UPDRAFT: Max w=45.26 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.82, Offset=0.1, COH=0.670
+    METRICS: Pmin:-0.00, Wmax:31.7 kts (Potential), LOCK:81.70%, COH:0.670
+[INFO] [INFO] Frame 16800: Max Wind 31.7 kts | θ′_max: 17.45 K
+[INFO]     🔥 BUOYANCY: Raw=0.4626 → Limited=0.3642 m/s² (clamp=21.3%)
+[INFO]     🌬️ UPDRAFT: Max w=45.54 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.82, Offset=0.0, COH=0.701
+    METRICS: Pmin:-0.00, Wmax:33.7 kts (Potential), LOCK:81.71%, COH:0.701
+[INFO] [INFO] Frame 16900: Max Wind 33.7 kts | θ′_max: 17.54 K
+[INFO]     🔥 BUOYANCY: Raw=0.4649 → Limited=0.3653 m/s² (clamp=21.4%)
+[INFO]     🌬️ UPDRAFT: Max w=44.16 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.82, Offset=0.1, COH=0.756
+    METRICS: Pmin:-0.00, Wmax:33.2 kts (Potential), LOCK:81.71%, COH:0.756
+[INFO] [INFO] Frame 17000: Max Wind 33.2 kts | θ′_max: 16.79 K
+[INFO]     🔥 BUOYANCY: Raw=0.4452 → Limited=0.3558 m/s² (clamp=20.1%)
+[INFO]     🌬️ UPDRAFT: Max w=43.30 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.16K, T_core=-14.6°C (Δ=-2.2)
+[INFO]     📉 STRATIFICATION: eff=0.95, eff_updraft=0.92 (reduction: 8%)
+[INFO]     🌀 NU_TURB: max=0.0357, mean=0.0016 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.55 g/kg (q_sat=24.2, q_sfc=24.8)
+[INFO]     💦 MOISTURE FLOOR: 1071306567 cells clamped
+[INFO]     💧 BETTS-MILLER: 16126 cells active, 466.442 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.39 q_1250=22.53 q_2500=23.47 g/kg
+[INFO]     🔬 BM LEVELS: L0(1649 cells, dq=0.000) L1(1222, dq=-18.868) L2(1043, dq=-41.331)
+[INFO]     🔬 COUPLING: q_gradient=0.92 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.2, COH=0.684
+    METRICS: Pmin:-0.00, Wmax:31.4 kts (Potential), LOCK:81.70%, COH:0.684
+[INFO] [INFO] Frame 17100: Max Wind 31.4 kts | θ′_max: 16.71 K
+[INFO]     🔥 BUOYANCY: Raw=0.4430 → Limited=0.3547 m/s² (clamp=19.9%)
+[INFO]     🌬️ UPDRAFT: Max w=43.43 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.82, Offset=0.3, COH=0.635
+    METRICS: Pmin:-0.00, Wmax:31.2 kts (Potential), LOCK:81.70%, COH:0.635
+[INFO] [INFO] Frame 17200: Max Wind 31.2 kts | θ′_max: 20.02 K
+[INFO]     🔥 BUOYANCY: Raw=0.5308 → Limited=0.3931 m/s² (clamp=25.9%)
+[INFO]     🌬️ UPDRAFT: Max w=44.03 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=31.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.81, Offset=0.6, COH=0.680
+    METRICS: Pmin:-0.00, Wmax:31.3 kts (Potential), LOCK:81.69%, COH:0.680
+[INFO] [INFO] Frame 17300: Max Wind 31.3 kts | θ′_max: 19.24 K
+[INFO]     🔥 BUOYANCY: Raw=0.5101 → Limited=0.3850 m/s² (clamp=24.5%)
+[INFO]     🌬️ UPDRAFT: Max w=43.82 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.81, Offset=0.6, COH=0.643
+    METRICS: Pmin:-0.00, Wmax:33.2 kts (Potential), LOCK:81.68%, COH:0.643
+[INFO] [INFO] Frame 17400: Max Wind 33.2 kts | θ′_max: 19.35 K
+[INFO]     🔥 BUOYANCY: Raw=0.5131 → Limited=0.3862 m/s² (clamp=24.7%)
+[INFO]     🌬️ UPDRAFT: Max w=43.62 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.81, Offset=0.4, COH=0.662
+    METRICS: Pmin:-0.00, Wmax:33.6 kts (Potential), LOCK:81.67%, COH:0.662
+[INFO] [INFO] Frame 17500: Max Wind 33.6 kts | θ′_max: 18.96 K
+[INFO]     🔥 BUOYANCY: Raw=0.5028 → Limited=0.3820 m/s² (clamp=24.0%)
+[INFO]     🌬️ UPDRAFT: Max w=44.15 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.35K, T_core=-14.8°C (Δ=-2.5)
+[INFO]     📉 STRATIFICATION: eff=0.95, eff_updraft=0.91 (reduction: 9%)
+[INFO]     🌀 NU_TURB: max=0.0361, mean=0.0016 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.51 g/kg (q_sat=24.2, q_sfc=24.7)
+[INFO]     💦 MOISTURE FLOOR: 1101422561 cells clamped
+[INFO]     💧 BETTS-MILLER: 17507 cells active, 503.062 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.40 q_1250=22.55 q_2500=23.48 g/kg
+[INFO]     🔬 BM LEVELS: L0(1743 cells, dq=0.000) L1(1403, dq=-20.534) L2(1153, dq=-44.854)
+[INFO]     🔬 COUPLING: q_gradient=0.91 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=33.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.82, Offset=0.3, COH=0.616
+    METRICS: Pmin:-0.00, Wmax:33.0 kts (Potential), LOCK:81.67%, COH:0.616
+[INFO] [INFO] Frame 17600: Max Wind 33.0 kts | θ′_max: 19.00 K
+[INFO]     🔥 BUOYANCY: Raw=0.5037 → Limited=0.3823 m/s² (clamp=24.1%)
+[INFO]     🌬️ UPDRAFT: Max w=47.78 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.82, Offset=0.2, COH=0.692
+    METRICS: Pmin:-0.00, Wmax:36.5 kts (Potential), LOCK:81.67%, COH:0.692
+[INFO] [INFO] Frame 17700: Max Wind 36.5 kts | θ′_max: 18.40 K
+[INFO]     🔥 BUOYANCY: Raw=0.4880 → Limited=0.3757 m/s² (clamp=23.0%)
+[INFO]     🌬️ UPDRAFT: Max w=50.21 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.82, Offset=0.3, COH=0.681
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.67%, COH:0.681
+[INFO] [INFO] Frame 17800: Max Wind 35.4 kts | θ′_max: 17.83 K
+[INFO]     🔥 BUOYANCY: Raw=0.4726 → Limited=0.3688 m/s² (clamp=22.0%)
+[INFO]     🌬️ UPDRAFT: Max w=48.61 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.81, Offset=0.4, COH=0.701
+    METRICS: Pmin:-0.00, Wmax:35.7 kts (Potential), LOCK:81.66%, COH:0.701
+[INFO] [INFO] Frame 17900: Max Wind 35.7 kts | θ′_max: 17.59 K
+[INFO]     🔥 BUOYANCY: Raw=0.4665 → Limited=0.3660 m/s² (clamp=21.5%)
+[INFO]     🌬️ UPDRAFT: Max w=46.13 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.81, Offset=0.4, COH=0.762
+    METRICS: Pmin:-0.00, Wmax:34.5 kts (Potential), LOCK:81.66%, COH:0.762
+[INFO] [INFO] Frame 18000: Max Wind 34.5 kts | θ′_max: 16.80 K
+[INFO]     🔥 BUOYANCY: Raw=0.4454 → Limited=0.3559 m/s² (clamp=20.1%)
+[INFO]     🌬️ UPDRAFT: Max w=43.80 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.17K, T_core=-14.6°C (Δ=-2.4)
+[INFO]     📉 STRATIFICATION: eff=0.95, eff_updraft=0.91 (reduction: 9%)
+[INFO]     🌀 NU_TURB: max=0.0379, mean=0.0017 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.43 g/kg (q_sat=24.2, q_sfc=24.7)
+[INFO]     💦 MOISTURE FLOOR: 1131540864 cells clamped
+[INFO]     💧 BETTS-MILLER: 19198 cells active, 543.677 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.54 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(1871 cells, dq=0.000) L1(1593, dq=-22.308) L2(1279, dq=-48.573)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 9.8 kts (target: 18-22 kts)
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-5.5, 2.5) m/s, σ=(3.9, 3.5)
+[INFO]     🧭 STEERING: u=-5.5, v=2.5 m/s (11.6 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-11 00:00...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-5.2, v=+1.0 m/s (weight=4.0)
+        300 hPa: u=-12.1, v=+2.7 m/s (weight=2.0)
+        400 hPa: u=-2.4, v=+12.6 m/s (weight=1.0)
+        500 hPa: u=-7.7, v=+13.4 m/s (weight=1.0)
+        600 hPa: u=-8.7, v=+14.5 m/s (weight=1.0)
+        700 hPa: u=-8.3, v=+13.3 m/s (weight=1.0)
+        850 hPa: u=-6.6, v=+8.6 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-7.6, v=+5.9 m/s
+     🏝️ Land Fraction processed: 0.4% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.57°N, -21.72°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.78, Track=0.81, Offset=0.6, COH=0.779
+    METRICS: Pmin:-0.00, Wmax:34.9 kts (Potential), LOCK:81.64%, COH:0.779
+[INFO] [INFO] Frame 18100: Max Wind 34.9 kts | θ′_max: 16.01 K
+[INFO]     🔥 BUOYANCY: Raw=0.4246 → Limited=0.3453 m/s² (clamp=18.7%)
+[INFO]     🌬️ UPDRAFT: Max w=42.29 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.81, Offset=0.6, COH=0.747
+    METRICS: Pmin:-0.00, Wmax:38.1 kts (Potential), LOCK:81.63%, COH:0.747
+[INFO] [INFO] Frame 18200: Max Wind 38.1 kts | θ′_max: 16.81 K
+[INFO]     🔥 BUOYANCY: Raw=0.4456 → Limited=0.3560 m/s² (clamp=20.1%)
+[INFO]     🌬️ UPDRAFT: Max w=40.97 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.81, Offset=0.7, COH=0.720
+    METRICS: Pmin:-0.00, Wmax:35.8 kts (Potential), LOCK:81.62%, COH:0.720
+[INFO] [INFO] Frame 18300: Max Wind 35.8 kts | θ′_max: 16.95 K
+[INFO]     🔥 BUOYANCY: Raw=0.4495 → Limited=0.3579 m/s² (clamp=20.4%)
+[INFO]     🌬️ UPDRAFT: Max w=40.17 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.72, Track=0.80, Offset=0.8, COH=0.719
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.61%, COH:0.719
+[INFO] [INFO] Frame 18400: Max Wind 35.4 kts | θ′_max: 17.30 K
+[INFO]     🔥 BUOYANCY: Raw=0.4586 → Limited=0.3623 m/s² (clamp=21.0%)
+[INFO]     🌬️ UPDRAFT: Max w=43.74 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.81, Offset=0.6, COH=0.685
+    METRICS: Pmin:-0.00, Wmax:37.1 kts (Potential), LOCK:81.60%, COH:0.685
+[INFO] [INFO] Frame 18500: Max Wind 37.1 kts | θ′_max: 18.10 K
+[INFO]     🔥 BUOYANCY: Raw=0.4800 → Limited=0.3721 m/s² (clamp=22.5%)
+[INFO]     🌬️ UPDRAFT: Max w=45.14 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-3.55K, T_core=-14.9°C (Δ=-2.7)
+[INFO]     📉 STRATIFICATION: eff=0.94, eff_updraft=0.90 (reduction: 10%)
+[INFO]     🌀 NU_TURB: max=0.0408, mean=0.0019 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.38 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1161518450 cells clamped
+[INFO]     💧 BETTS-MILLER: 21279 cells active, 591.975 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.54 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(2024 cells, dq=0.000) L1(1794, dq=-24.476) L2(1424, dq=-53.208)
+[INFO]     🔬 COUPLING: q_gradient=0.91 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.80, Offset=1.0, COH=0.701
+    METRICS: Pmin:-0.00, Wmax:36.5 kts (Potential), LOCK:81.59%, COH:0.701
+[INFO] [INFO] Frame 18600: Max Wind 36.5 kts | θ′_max: 17.42 K
+[INFO]     🔥 BUOYANCY: Raw=0.4619 → Limited=0.3639 m/s² (clamp=21.2%)
+[INFO]     🌬️ UPDRAFT: Max w=45.59 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.79, Offset=1.3, COH=0.753
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.56%, COH:0.753
+[INFO] [INFO] Frame 18700: Max Wind 35.4 kts | θ′_max: 16.71 K
+[INFO]     🔥 BUOYANCY: Raw=0.4430 → Limited=0.3547 m/s² (clamp=19.9%)
+[INFO]     🌬️ UPDRAFT: Max w=45.09 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.79, Offset=1.6, COH=0.640
+    METRICS: Pmin:-0.00, Wmax:39.5 kts (TS), LOCK:81.53%, COH:0.640
+[INFO] [INFO] Frame 18800: Max Wind 39.5 kts | θ′_max: 17.44 K
+[INFO]     🔥 BUOYANCY: Raw=0.4624 → Limited=0.3641 m/s² (clamp=21.3%)
+[INFO]     🌬️ UPDRAFT: Max w=45.34 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.79, Offset=1.4, COH=0.617
+    METRICS: Pmin:-0.00, Wmax:35.9 kts (Potential), LOCK:81.50%, COH:0.617
+[INFO] [INFO] Frame 18900: Max Wind 35.9 kts | θ′_max: 18.93 K
+[INFO]     🔥 BUOYANCY: Raw=0.5020 → Limited=0.3816 m/s² (clamp=24.0%)
+[INFO]     🌬️ UPDRAFT: Max w=42.55 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.80, Offset=1.1, COH=0.661
+    METRICS: Pmin:-0.00, Wmax:36.3 kts (Potential), LOCK:81.48%, COH:0.661
+[INFO] [INFO] Frame 19000: Max Wind 36.3 kts | θ′_max: 18.23 K
+[INFO]     🔥 BUOYANCY: Raw=0.4833 → Limited=0.3736 m/s² (clamp=22.7%)
+[INFO]     🌬️ UPDRAFT: Max w=45.45 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.81K, T_core=-14.3°C (Δ=-2.1)
+[INFO]     📉 STRATIFICATION: eff=0.93, eff_updraft=0.89 (reduction: 11%)
+[INFO]     🌀 NU_TURB: max=0.0380, mean=0.0020 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.35 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1191172706 cells clamped
+[INFO]     💧 BETTS-MILLER: 23698 cells active, 647.963 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.43 q_1250=22.55 q_2500=23.50 g/kg
+[INFO]     🔬 BM LEVELS: L0(2183 cells, dq=0.000) L1(2046, dq=-27.071) L2(1600, dq=-58.530)
+[INFO]     🔬 COUPLING: q_gradient=0.93 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.79, Offset=1.3, COH=0.654
+    METRICS: Pmin:-0.00, Wmax:37.9 kts (Potential), LOCK:81.45%, COH:0.654
+[INFO] [INFO] Frame 19100: Max Wind 37.9 kts | θ′_max: 16.01 K
+[INFO]     🔥 BUOYANCY: Raw=0.4246 → Limited=0.3453 m/s² (clamp=18.7%)
+[INFO]     🌬️ UPDRAFT: Max w=48.05 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.79, Offset=1.6, COH=0.700
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:81.42%, COH:0.700
+[INFO] [INFO] Frame 19200: Max Wind 35.4 kts | θ′_max: 18.04 K
+[INFO]     🔥 BUOYANCY: Raw=0.4784 → Limited=0.3714 m/s² (clamp=22.4%)
+[INFO]     🌬️ UPDRAFT: Max w=47.28 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.78, Offset=1.8, COH=0.665
+    METRICS: Pmin:-0.00, Wmax:35.2 kts (Potential), LOCK:81.38%, COH:0.665
+[INFO] [INFO] Frame 19300: Max Wind 35.2 kts | θ′_max: 18.85 K
+[INFO]     🔥 BUOYANCY: Raw=0.4999 → Limited=0.3808 m/s² (clamp=23.8%)
+[INFO]     🌬️ UPDRAFT: Max w=42.14 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.7kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.78, Offset=1.9, COH=0.664
+    METRICS: Pmin:-0.00, Wmax:35.7 kts (Potential), LOCK:81.33%, COH:0.664
+[INFO] [INFO] Frame 19400: Max Wind 35.7 kts | θ′_max: 18.80 K
+[INFO]     🔥 BUOYANCY: Raw=0.4985 → Limited=0.3802 m/s² (clamp=23.7%)
+[INFO]     🌬️ UPDRAFT: Max w=43.02 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.77, Offset=2.0, COH=0.667
+    METRICS: Pmin:-0.00, Wmax:34.7 kts (Potential), LOCK:81.29%, COH:0.667
+[INFO] [INFO] Frame 19500: Max Wind 34.7 kts | θ′_max: 18.02 K
+[INFO]     🔥 BUOYANCY: Raw=0.4778 → Limited=0.3712 m/s² (clamp=22.3%)
+[INFO]     🌬️ UPDRAFT: Max w=45.15 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.56K, T_core=-14.1°C (Δ=-1.7)
+[INFO]     📉 STRATIFICATION: eff=0.93, eff_updraft=0.88 (reduction: 12%)
+[INFO]     🌀 NU_TURB: max=0.0385, mean=0.0023 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.37 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1220467160 cells clamped
+[INFO]     💧 BETTS-MILLER: 26759 cells active, 714.747 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.44 q_1250=22.57 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(2402 cells, dq=0.000) L1(2397, dq=-30.204) L2(1831, dq=-64.899)
+[INFO]     🔬 COUPLING: q_gradient=0.93 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.77, Offset=2.0, COH=0.670
+    METRICS: Pmin:-0.00, Wmax:34.2 kts (Potential), LOCK:81.25%, COH:0.670
+[INFO] [INFO] Frame 19600: Max Wind 34.2 kts | θ′_max: 18.48 K
+[INFO]     🔥 BUOYANCY: Raw=0.4900 → Limited=0.3765 m/s² (clamp=23.2%)
+[INFO]     🌬️ UPDRAFT: Max w=46.08 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.78, Offset=1.9, COH=0.664
+    METRICS: Pmin:-0.00, Wmax:37.8 kts (Potential), LOCK:81.21%, COH:0.664
+[INFO] [INFO] Frame 19700: Max Wind 37.8 kts | θ′_max: 18.94 K
+[INFO]     🔥 BUOYANCY: Raw=0.5022 → Limited=0.3817 m/s² (clamp=24.0%)
+[INFO]     🌬️ UPDRAFT: Max w=45.53 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.78, Offset=1.8, COH=0.642
+    METRICS: Pmin:-0.00, Wmax:37.4 kts (Potential), LOCK:81.17%, COH:0.642
+[INFO] [INFO] Frame 19800: Max Wind 37.4 kts | θ′_max: 18.17 K
+[INFO]     🔥 BUOYANCY: Raw=0.4819 → Limited=0.3730 m/s² (clamp=22.6%)
+[INFO]     🌬️ UPDRAFT: Max w=44.37 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=42.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.78, Offset=1.9, COH=0.613
+    METRICS: Pmin:-0.00, Wmax:42.2 kts (TS), LOCK:81.13%, COH:0.613
+[INFO] [INFO] Frame 19900: Max Wind 42.2 kts | θ′_max: 18.12 K
+[INFO]     🔥 BUOYANCY: Raw=0.4805 → Limited=0.3724 m/s² (clamp=22.5%)
+[INFO]     🌬️ UPDRAFT: Max w=42.88 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.77, Offset=2.1, COH=0.656
+    METRICS: Pmin:-0.00, Wmax:39.5 kts (TS), LOCK:81.09%, COH:0.656
+[INFO] [INFO] Frame 20000: Max Wind 39.5 kts | θ′_max: 18.11 K
+[INFO]     🔥 BUOYANCY: Raw=0.4803 → Limited=0.3723 m/s² (clamp=22.5%)
+[INFO]     🌬️ UPDRAFT: Max w=41.76 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.39K, T_core=-14.0°C (Δ=-1.8)
+[INFO]     📉 STRATIFICATION: eff=0.92, eff_updraft=0.86 (reduction: 14%)
+[INFO]     🌀 NU_TURB: max=0.0387, mean=0.0025 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.38 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1249494496 cells clamped
+[INFO]     💧 BETTS-MILLER: 29972 cells active, 791.519 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.57 q_2500=23.52 g/kg
+[INFO]     🔬 BM LEVELS: L0(2633 cells, dq=0.000) L1(2681, dq=-33.480) L2(2079, dq=-72.451)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.59, Track=0.76, Offset=2.6, COH=0.592
+    METRICS: Pmin:-0.00, Wmax:37.4 kts (Potential), LOCK:81.03%, COH:0.592
+[INFO] [INFO] Frame 20100: Max Wind 37.4 kts | θ′_max: 18.16 K
+[INFO]     🔥 BUOYANCY: Raw=0.4816 → Limited=0.3728 m/s² (clamp=22.6%)
+[INFO]     🌬️ UPDRAFT: Max w=41.21 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.76, Offset=2.6, COH=0.636
+    METRICS: Pmin:-0.00, Wmax:38.7 kts (Potential), LOCK:80.97%, COH:0.636
+[INFO] [INFO] Frame 20200: Max Wind 38.7 kts | θ′_max: 18.26 K
+[INFO]     🔥 BUOYANCY: Raw=0.4841 → Limited=0.3740 m/s² (clamp=22.8%)
+[INFO]     🌬️ UPDRAFT: Max w=41.68 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.77, Offset=2.4, COH=0.652
+    METRICS: Pmin:-0.00, Wmax:36.3 kts (Potential), LOCK:80.91%, COH:0.652
+[INFO] [INFO] Frame 20300: Max Wind 36.3 kts | θ′_max: 17.62 K
+[INFO]     🔥 BUOYANCY: Raw=0.4673 → Limited=0.3663 m/s² (clamp=21.6%)
+[INFO]     🌬️ UPDRAFT: Max w=42.30 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=34.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.76, Offset=2.5, COH=0.661
+    METRICS: Pmin:-0.00, Wmax:34.7 kts (Potential), LOCK:80.85%, COH:0.661
+[INFO] [INFO] Frame 20400: Max Wind 34.7 kts | θ′_max: 17.59 K
+[INFO]     🔥 BUOYANCY: Raw=0.4665 → Limited=0.3660 m/s² (clamp=21.5%)
+[INFO]     🌬️ UPDRAFT: Max w=42.02 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.76, Offset=2.7, COH=0.657
+    METRICS: Pmin:-0.00, Wmax:37.2 kts (Potential), LOCK:80.79%, COH:0.657
+[INFO] [INFO] Frame 20500: Max Wind 37.2 kts | θ′_max: 16.98 K
+[INFO]     🔥 BUOYANCY: Raw=0.4502 → Limited=0.3582 m/s² (clamp=20.4%)
+[INFO]     🌬️ UPDRAFT: Max w=42.32 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.09K, T_core=-13.8°C (Δ=-1.7)
+[INFO]     📉 STRATIFICATION: eff=0.91, eff_updraft=0.85 (reduction: 15%)
+[INFO]     🌀 NU_TURB: max=0.0387, mean=0.0027 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.36 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1278009801 cells clamped
+[INFO]     💧 BETTS-MILLER: 33799 cells active, 887.372 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.38 q_1250=22.49 q_2500=23.48 g/kg
+[INFO]     🔬 BM LEVELS: L0(2894 cells, dq=0.000) L1(2994, dq=-37.578) L2(2367, dq=-81.288)
+[INFO]     🔬 COUPLING: q_gradient=0.90 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.75, Offset=2.8, COH=0.655
+    METRICS: Pmin:-0.00, Wmax:35.2 kts (Potential), LOCK:80.73%, COH:0.655
+[INFO] [INFO] Frame 20600: Max Wind 35.2 kts | θ′_max: 17.15 K
+[INFO]     🔥 BUOYANCY: Raw=0.4546 → Limited=0.3604 m/s² (clamp=20.7%)
+[INFO]     🌬️ UPDRAFT: Max w=45.26 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.76, Offset=2.5, COH=0.685
+    METRICS: Pmin:-0.00, Wmax:39.2 kts (TS), LOCK:80.67%, COH:0.685
+[INFO] [INFO] Frame 20700: Max Wind 39.2 kts | θ′_max: 17.16 K
+[INFO]     🔥 BUOYANCY: Raw=0.4550 → Limited=0.3606 m/s² (clamp=20.8%)
+[INFO]     🌬️ UPDRAFT: Max w=44.67 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.0kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.76, Offset=2.5, COH=0.715
+    METRICS: Pmin:-0.00, Wmax:41.0 kts (TS), LOCK:80.62%, COH:0.715
+[INFO] [INFO] Frame 20800: Max Wind 41.0 kts | θ′_max: 16.51 K
+[INFO]     🔥 BUOYANCY: Raw=0.4377 → Limited=0.3521 m/s² (clamp=19.6%)
+[INFO]     🌬️ UPDRAFT: Max w=42.13 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.71, Track=0.75, Offset=2.8, COH=0.708
+    METRICS: Pmin:-0.00, Wmax:39.9 kts (TS), LOCK:80.57%, COH:0.708
+[INFO] [INFO] Frame 20900: Max Wind 39.9 kts | θ′_max: 16.51 K
+[INFO]     🔥 BUOYANCY: Raw=0.4378 → Limited=0.3521 m/s² (clamp=19.6%)
+[INFO]     🌬️ UPDRAFT: Max w=42.56 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=44.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.76, Offset=2.7, COH=0.675
+    METRICS: Pmin:-0.00, Wmax:44.0 kts (TS), LOCK:80.51%, COH:0.675
+[INFO] [INFO] Frame 21000: Max Wind 44.0 kts | θ′_max: 16.38 K
+[INFO]     🔥 BUOYANCY: Raw=0.4343 → Limited=0.3503 m/s² (clamp=19.3%)
+[INFO]     🌬️ UPDRAFT: Max w=42.07 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.68K, T_core=-14.2°C (Δ=-2.2)
+[INFO]     📉 STRATIFICATION: eff=0.90, eff_updraft=0.83 (reduction: 17%)
+[INFO]     🌀 NU_TURB: max=0.0392, mean=0.0030 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.42 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1305885293 cells clamped
+[INFO]     💧 BETTS-MILLER: 38088 cells active, 990.595 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.40 q_1250=22.52 q_2500=23.46 g/kg
+[INFO]     🔬 BM LEVELS: L0(3196 cells, dq=0.000) L1(3357, dq=-42.015) L2(2650, dq=-90.980)
+[INFO]     🔬 COUPLING: q_gradient=0.94 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.76, Offset=2.5, COH=0.747
+    METRICS: Pmin:-0.00, Wmax:38.0 kts (Potential), LOCK:80.46%, COH:0.747
+[INFO] [INFO] Frame 21100: Max Wind 38.0 kts | θ′_max: 17.47 K
+[INFO]     🔥 BUOYANCY: Raw=0.4631 → Limited=0.3644 m/s² (clamp=21.3%)
+[INFO]     🌬️ UPDRAFT: Max w=42.14 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.76, Offset=2.5, COH=0.650
+    METRICS: Pmin:-0.00, Wmax:41.0 kts (TS), LOCK:80.40%, COH:0.650
+[INFO] [INFO] Frame 21200: Max Wind 41.0 kts | θ′_max: 17.85 K
+[INFO]     🔥 BUOYANCY: Raw=0.4733 → Limited=0.3691 m/s² (clamp=22.0%)
+[INFO]     🌬️ UPDRAFT: Max w=44.32 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.76, Offset=2.7, COH=0.663
+    METRICS: Pmin:-0.00, Wmax:41.6 kts (TS), LOCK:80.34%, COH:0.663
+[INFO] [INFO] Frame 21300: Max Wind 41.6 kts | θ′_max: 17.21 K
+[INFO]     🔥 BUOYANCY: Raw=0.4564 → Limited=0.3613 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=46.07 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.61, Track=0.75, Offset=2.8, COH=0.615
+    METRICS: Pmin:-0.00, Wmax:39.4 kts (TS), LOCK:80.27%, COH:0.615
+[INFO] [INFO] Frame 21400: Max Wind 39.4 kts | θ′_max: 17.42 K
+[INFO]     🔥 BUOYANCY: Raw=0.4620 → Limited=0.3639 m/s² (clamp=21.2%)
+[INFO]     🌬️ UPDRAFT: Max w=45.19 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.59, Track=0.75, Offset=2.8, COH=0.590
+    METRICS: Pmin:-0.00, Wmax:39.3 kts (TS), LOCK:80.20%, COH:0.590
+[INFO] [INFO] Frame 21500: Max Wind 39.3 kts | θ′_max: 17.66 K
+[INFO]     🔥 BUOYANCY: Raw=0.4684 → Limited=0.3669 m/s² (clamp=21.7%)
+[INFO]     🌬️ UPDRAFT: Max w=43.46 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.61K, T_core=-14.2°C (Δ=-2.1)
+[INFO]     📉 STRATIFICATION: eff=0.89, eff_updraft=0.82 (reduction: 18%)
+[INFO]     🌀 NU_TURB: max=0.0376, mean=0.0033 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.44 g/kg (q_sat=24.2, q_sfc=24.7)
+[INFO]     💦 MOISTURE FLOOR: 1333042277 cells clamped
+[INFO]     💧 BETTS-MILLER: 43200 cells active, 1115.130 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.41 q_1250=22.57 q_2500=23.49 g/kg
+[INFO]     🔬 BM LEVELS: L0(3576 cells, dq=0.000) L1(3780, dq=-47.502) L2(3041, dq=-102.793)
+[INFO]     🔬 COUPLING: q_gradient=0.92 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 10.4 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.76, Offset=2.7, COH=0.637
+    METRICS: Pmin:-0.00, Wmax:37.9 kts (Potential), LOCK:80.14%, COH:0.637
+[INFO] [INFO] Frame 21600: Max Wind 37.9 kts | θ′_max: 17.13 K
+[INFO]     🔥 BUOYANCY: Raw=0.4542 → Limited=0.3602 m/s² (clamp=20.7%)
+[INFO]     🌬️ UPDRAFT: Max w=43.68 m/s
+[INFO]     📊 ERA5 DIAGNOSTICS: domain-mean=(-7.0, 5.1) m/s, σ=(3.8, 1.9)
+[INFO]     🧭 STEERING: u=-7.0, v=5.1 m/s (16.8 kts)
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-11 02:24...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-5.9, v=+1.8 m/s (weight=4.0)
+        300 hPa: u=-13.9, v=+4.5 m/s (weight=2.0)
+        400 hPa: u=-2.4, v=+11.7 m/s (weight=1.0)
+        500 hPa: u=-5.3, v=+12.7 m/s (weight=1.0)
+        600 hPa: u=-10.0, v=+14.0 m/s (weight=1.0)
+        700 hPa: u=-9.5, v=+13.3 m/s (weight=1.0)
+        850 hPa: u=-8.1, v=+8.8 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-8.4, v=+6.5 m/s
+     🏝️ Land Fraction processed: 0.6% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]     📍 POSITION: (13.77°N, -22.16°W)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.76, Offset=2.7, COH=0.675
+    METRICS: Pmin:-0.00, Wmax:37.0 kts (Potential), LOCK:80.08%, COH:0.675
+[INFO] [INFO] Frame 21700: Max Wind 37.0 kts | θ′_max: 18.80 K
+[INFO]     🔥 BUOYANCY: Raw=0.4985 → Limited=0.3802 m/s² (clamp=23.7%)
+[INFO]     🌬️ UPDRAFT: Max w=44.17 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.0kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.76, Offset=2.7, COH=0.689
+    METRICS: Pmin:-0.00, Wmax:39.0 kts (Potential), LOCK:80.02%, COH:0.689
+[INFO] [INFO] Frame 21800: Max Wind 39.0 kts | θ′_max: 18.02 K
+[INFO]     🔥 BUOYANCY: Raw=0.4778 → Limited=0.3712 m/s² (clamp=22.3%)
+[INFO]     🌬️ UPDRAFT: Max w=45.42 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.75, Offset=3.1, COH=0.646
+    METRICS: Pmin:-0.00, Wmax:41.5 kts (TS), LOCK:79.94%, COH:0.646
+[INFO] [INFO] Frame 21900: Max Wind 41.5 kts | θ′_max: 17.63 K
+[INFO]     🔥 BUOYANCY: Raw=0.4675 → Limited=0.3664 m/s² (clamp=21.6%)
+[INFO]     🌬️ UPDRAFT: Max w=46.71 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.76, Offset=2.7, COH=0.675
+    METRICS: Pmin:-0.00, Wmax:38.9 kts (Potential), LOCK:79.87%, COH:0.675
+[INFO] [INFO] Frame 22000: Max Wind 38.9 kts | θ′_max: 17.87 K
+[INFO]     🔥 BUOYANCY: Raw=0.4737 → Limited=0.3693 m/s² (clamp=22.0%)
+[INFO]     🌬️ UPDRAFT: Max w=47.57 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.90K, T_core=-14.4°C (Δ=-2.3)
+[INFO]     📉 STRATIFICATION: eff=0.87, eff_updraft=0.80 (reduction: 20%)
+[INFO]     🌀 NU_TURB: max=0.0381, mean=0.0037 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.42 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1359439092 cells clamped
+[INFO]     💧 BETTS-MILLER: 48548 cells active, 1249.216 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.37 q_1250=22.51 q_2500=23.49 g/kg
+[INFO]     🔬 BM LEVELS: L0(3949 cells, dq=0.000) L1(4218, dq=-53.074) L2(3489, dq=-115.130)
+[INFO]     🔬 COUPLING: q_gradient=0.88 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.76, Offset=2.4, COH=0.650
+    METRICS: Pmin:-0.00, Wmax:39.4 kts (TS), LOCK:79.82%, COH:0.650
+[INFO] [INFO] Frame 22100: Max Wind 39.4 kts | θ′_max: 19.29 K
+[INFO]     🔥 BUOYANCY: Raw=0.5113 → Limited=0.3855 m/s² (clamp=24.6%)
+[INFO]     🌬️ UPDRAFT: Max w=47.64 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.76, Offset=2.7, COH=0.767
+    METRICS: Pmin:-0.00, Wmax:36.7 kts (Potential), LOCK:79.76%, COH:0.767
+[INFO] [INFO] Frame 22200: Max Wind 36.7 kts | θ′_max: 17.61 K
+[INFO]     🔥 BUOYANCY: Raw=0.4670 → Limited=0.3662 m/s² (clamp=21.6%)
+[INFO]     🌬️ UPDRAFT: Max w=47.53 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.76, Track=0.76, Offset=2.5, COH=0.760
+    METRICS: Pmin:-0.00, Wmax:40.1 kts (TS), LOCK:79.71%, COH:0.760
+[INFO] [INFO] Frame 22300: Max Wind 40.1 kts | θ′_max: 17.23 K
+[INFO]     🔥 BUOYANCY: Raw=0.4567 → Limited=0.3614 m/s² (clamp=20.9%)
+[INFO]     🌬️ UPDRAFT: Max w=47.53 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.77, Offset=2.2, COH=0.766
+    METRICS: Pmin:-0.00, Wmax:40.7 kts (TS), LOCK:79.67%, COH:0.766
+[INFO] [INFO] Frame 22400: Max Wind 40.7 kts | θ′_max: 16.77 K
+[INFO]     🔥 BUOYANCY: Raw=0.4447 → Limited=0.3555 m/s² (clamp=20.0%)
+[INFO]     🌬️ UPDRAFT: Max w=47.27 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.62, Track=0.78, Offset=1.8, COH=0.616
+    METRICS: Pmin:-0.00, Wmax:38.2 kts (Potential), LOCK:79.63%, COH:0.616
+[INFO] [INFO] Frame 22500: Max Wind 38.2 kts | θ′_max: 17.20 K
+[INFO]     🔥 BUOYANCY: Raw=0.4561 → Limited=0.3611 m/s² (clamp=20.8%)
+[INFO]     🌬️ UPDRAFT: Max w=47.19 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.45K, T_core=-14.1°C (Δ=-1.6)
+[INFO]     📉 STRATIFICATION: eff=0.86, eff_updraft=0.78 (reduction: 22%)
+[INFO]     🌀 NU_TURB: max=0.0396, mean=0.0039 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.39 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1385061492 cells clamped
+[INFO]     💧 BETTS-MILLER: 54420 cells active, 1395.738 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.33 q_1250=22.47 q_2500=23.45 g/kg
+[INFO]     🔬 BM LEVELS: L0(4328 cells, dq=0.000) L1(4663, dq=-59.318) L2(3922, dq=-129.076)
+[INFO]     🔬 COUPLING: q_gradient=0.88 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.78, Offset=1.7, COH=0.663
+    METRICS: Pmin:-0.00, Wmax:40.2 kts (TS), LOCK:79.60%, COH:0.663
+[INFO] [INFO] Frame 22600: Max Wind 40.2 kts | θ′_max: 18.42 K
+[INFO]     🔥 BUOYANCY: Raw=0.4885 → Limited=0.3759 m/s² (clamp=23.1%)
+[INFO]     🌬️ UPDRAFT: Max w=47.26 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.74, Track=0.77, Offset=2.1, COH=0.742
+    METRICS: Pmin:-0.00, Wmax:40.6 kts (TS), LOCK:79.56%, COH:0.742
+[INFO] [INFO] Frame 22700: Max Wind 40.6 kts | θ′_max: 17.57 K
+[INFO]     🔥 BUOYANCY: Raw=0.4660 → Limited=0.3657 m/s² (clamp=21.5%)
+[INFO]     🌬️ UPDRAFT: Max w=46.86 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.75, Track=0.78, Offset=2.0, COH=0.748
+    METRICS: Pmin:-0.00, Wmax:41.5 kts (TS), LOCK:79.52%, COH:0.748
+[INFO] [INFO] Frame 22800: Max Wind 41.5 kts | θ′_max: 17.56 K
+[INFO]     🔥 BUOYANCY: Raw=0.4655 → Limited=0.3655 m/s² (clamp=21.5%)
+[INFO]     🌬️ UPDRAFT: Max w=46.16 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=46.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.77, Offset=2.3, COH=0.651
+    METRICS: Pmin:-0.00, Wmax:46.8 kts (TS), LOCK:79.47%, COH:0.651
+[INFO] [INFO] Frame 22900: Max Wind 46.8 kts | θ′_max: 17.03 K
+[INFO]     🔥 BUOYANCY: Raw=0.4517 → Limited=0.3590 m/s² (clamp=20.5%)
+[INFO]     🌬️ UPDRAFT: Max w=48.94 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.77, Offset=2.1, COH=0.655
+    METRICS: Pmin:-0.00, Wmax:40.2 kts (TS), LOCK:79.43%, COH:0.655
+[INFO] [INFO] Frame 23000: Max Wind 40.2 kts | θ′_max: 17.06 K
+[INFO]     🔥 BUOYANCY: Raw=0.4524 → Limited=0.3593 m/s² (clamp=20.6%)
+[INFO]     🌬️ UPDRAFT: Max w=48.43 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.48K, T_core=-14.1°C (Δ=-2.0)
+[INFO]     📉 STRATIFICATION: eff=0.84, eff_updraft=0.76 (reduction: 24%)
+[INFO]     🌀 NU_TURB: max=0.0377, mean=0.0043 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.38 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1409727222 cells clamped
+[INFO]     💧 BETTS-MILLER: 61336 cells active, 1572.351 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.35 q_1250=22.49 q_2500=23.48 g/kg
+[INFO]     🔬 BM LEVELS: L0(4842 cells, dq=0.000) L1(5161, dq=-66.674) L2(4410, dq=-145.391)
+[INFO]     🔬 COUPLING: q_gradient=0.87 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.68, Track=0.77, Offset=2.1, COH=0.678
+    METRICS: Pmin:-0.00, Wmax:40.6 kts (TS), LOCK:79.38%, COH:0.678
+[INFO] [INFO] Frame 23100: Max Wind 40.6 kts | θ′_max: 17.97 K
+[INFO]     🔥 BUOYANCY: Raw=0.4764 → Limited=0.3705 m/s² (clamp=22.2%)
+[INFO]     🌬️ UPDRAFT: Max w=45.96 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.6kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.78, Offset=1.8, COH=0.643
+    METRICS: Pmin:-0.00, Wmax:40.6 kts (TS), LOCK:79.34%, COH:0.643
+[INFO] [INFO] Frame 23200: Max Wind 40.6 kts | θ′_max: 18.50 K
+[INFO]     🔥 BUOYANCY: Raw=0.4906 → Limited=0.3768 m/s² (clamp=23.2%)
+[INFO]     🌬️ UPDRAFT: Max w=46.58 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.78, Offset=2.0, COH=0.665
+    METRICS: Pmin:-0.00, Wmax:36.8 kts (Potential), LOCK:79.30%, COH:0.665
+[INFO] [INFO] Frame 23300: Max Wind 36.8 kts | θ′_max: 19.00 K
+[INFO]     🔥 BUOYANCY: Raw=0.5037 → Limited=0.3823 m/s² (clamp=24.1%)
+[INFO]     🌬️ UPDRAFT: Max w=48.12 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.8kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.63, Track=0.78, Offset=1.9, COH=0.627
+    METRICS: Pmin:-0.00, Wmax:35.8 kts (Potential), LOCK:79.26%, COH:0.627
+[INFO] [INFO] Frame 23400: Max Wind 35.8 kts | θ′_max: 18.89 K
+[INFO]     🔥 BUOYANCY: Raw=0.5010 → Limited=0.3812 m/s² (clamp=23.9%)
+[INFO]     🌬️ UPDRAFT: Max w=49.32 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=36.3kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.79, Offset=1.6, COH=0.665
+    METRICS: Pmin:-0.00, Wmax:36.3 kts (Potential), LOCK:79.24%, COH:0.665
+[INFO] [INFO] Frame 23500: Max Wind 36.3 kts | θ′_max: 19.20 K
+[INFO]     🔥 BUOYANCY: Raw=0.5092 → Limited=0.3846 m/s² (clamp=24.5%)
+[INFO]     🌬️ UPDRAFT: Max w=49.57 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.80K, T_core=-14.3°C (Δ=-2.3)
+[INFO]     📉 STRATIFICATION: eff=0.82, eff_updraft=0.73 (reduction: 27%)
+[INFO]     🌀 NU_TURB: max=0.0395, mean=0.0048 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.38 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1433420596 cells clamped
+[INFO]     💧 BETTS-MILLER: 69684 cells active, 1770.748 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.38 q_1250=22.54 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(5470 cells, dq=0.000) L1(5780, dq=-75.248) L2(5001, dq=-163.980)
+[INFO]     🔬 COUPLING: q_gradient=0.87 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=38.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.67, Track=0.78, Offset=1.8, COH=0.670
+    METRICS: Pmin:-0.00, Wmax:38.9 kts (Potential), LOCK:79.20%, COH:0.670
+[INFO] [INFO] Frame 23600: Max Wind 38.9 kts | θ′_max: 19.02 K
+[INFO]     🔥 BUOYANCY: Raw=0.5043 → Limited=0.3826 m/s² (clamp=24.1%)
+[INFO]     🌬️ UPDRAFT: Max w=49.11 m/s
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.80, Track=0.78, Offset=1.6, COH=0.804
+    METRICS: Pmin:-0.00, Wmax:40.7 kts (TS), LOCK:79.18%, COH:0.804
+[INFO] [INFO] Frame 23700: Max Wind 40.7 kts | θ′_max: 17.59 K
+[INFO]     🔥 BUOYANCY: Raw=0.4663 → Limited=0.3659 m/s² (clamp=21.5%)
+[INFO]     🌬️ UPDRAFT: Max w=48.33 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.73, Track=0.78, Offset=1.9, COH=0.734
+    METRICS: Pmin:-0.00, Wmax:41.4 kts (TS), LOCK:79.14%, COH:0.734
+[INFO] [INFO] Frame 23800: Max Wind 41.4 kts | θ′_max: 17.15 K
+[INFO]     🔥 BUOYANCY: Raw=0.4548 → Limited=0.3605 m/s² (clamp=20.7%)
+[INFO]     🌬️ UPDRAFT: Max w=47.70 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.65, Track=0.77, Offset=2.2, COH=0.651
+    METRICS: Pmin:-0.00, Wmax:41.1 kts (TS), LOCK:79.10%, COH:0.651
+[INFO] [INFO] Frame 23900: Max Wind 41.1 kts | θ′_max: 17.34 K
+[INFO]     🔥 BUOYANCY: Raw=0.4596 → Limited=0.3628 m/s² (clamp=21.1%)
+[INFO]     🌬️ UPDRAFT: Max w=47.04 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=39.1kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.77, Offset=2.1, COH=0.637
+    METRICS: Pmin:-0.00, Wmax:39.1 kts (TS), LOCK:79.05%, COH:0.637
+[INFO] [INFO] Frame 24000: Max Wind 39.1 kts | θ′_max: 16.46 K
+[INFO]     🔥 BUOYANCY: Raw=0.4363 → Limited=0.3514 m/s² (clamp=19.5%)
+[INFO]     🌬️ UPDRAFT: Max w=47.34 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.88K, T_core=-14.4°C (Δ=-2.5)
+[INFO]     📉 STRATIFICATION: eff=0.80, eff_updraft=0.71 (reduction: 29%)
+[INFO]     🌀 NU_TURB: max=0.0382, mean=0.0051 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.37 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1456088012 cells clamped
+[INFO]     💧 BETTS-MILLER: 78395 cells active, 1990.431 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.44 q_1250=22.54 q_2500=23.51 g/kg
+[INFO]     🔬 BM LEVELS: L0(6107 cells, dq=0.000) L1(6539, dq=-84.793) L2(5656, dq=-184.736)
+[INFO]     🔬 COUPLING: q_gradient=0.93 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    🐻 V47 COLD START: Phase=GENESIS, Wind=43.5kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.77, Offset=2.0, COH=0.635
+    METRICS: Pmin:-0.00, Wmax:43.5 kts (TS), LOCK:79.01%, COH:0.635
+[INFO] [INFO] Frame 24100: Max Wind 43.5 kts | θ′_max: 19.11 K
+[INFO]     🔥 BUOYANCY: Raw=0.5067 → Limited=0.3836 m/s² (clamp=24.3%)
+[INFO]     🌬️ UPDRAFT: Max w=48.24 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.8kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.60, Track=0.78, Offset=1.9, COH=0.598
+    METRICS: Pmin:-0.00, Wmax:40.8 kts (TS), LOCK:78.97%, COH:0.598
+[INFO] [INFO] Frame 24200: Max Wind 40.8 kts | θ′_max: 20.41 K
+[INFO]     🔥 BUOYANCY: Raw=0.5410 → Limited=0.3970 m/s² (clamp=26.6%)
+[INFO]     🌬️ UPDRAFT: Max w=48.52 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.0kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.64, Track=0.80, Offset=1.0, COH=0.645
+    METRICS: Pmin:-0.00, Wmax:41.0 kts (TS), LOCK:78.95%, COH:0.645
+[INFO] [INFO] Frame 24300: Max Wind 41.0 kts | θ′_max: 19.30 K
+[INFO]     🔥 BUOYANCY: Raw=0.5116 → Limited=0.3856 m/s² (clamp=24.6%)
+[INFO]     🌬️ UPDRAFT: Max w=48.43 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.2kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.77, Track=0.80, Offset=1.0, COH=0.765
+    METRICS: Pmin:-0.00, Wmax:40.2 kts (TS), LOCK:78.93%, COH:0.765
+[INFO] [INFO] Frame 24400: Max Wind 40.2 kts | θ′_max: 17.27 K
+[INFO]     🔥 BUOYANCY: Raw=0.4580 → Limited=0.3620 m/s² (clamp=21.0%)
+[INFO]     🌬️ UPDRAFT: Max w=49.86 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=37.4kts, p_range=0.0002
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.79, Track=0.80, Offset=0.9, COH=0.791
+    METRICS: Pmin:-0.00, Wmax:37.4 kts (Potential), LOCK:78.91%, COH:0.791
+[INFO] [INFO] Frame 24500: Max Wind 37.4 kts | θ′_max: 18.50 K
+[INFO]     🔥 BUOYANCY: Raw=0.4906 → Limited=0.3768 m/s² (clamp=23.2%)
+[INFO]     🌬️ UPDRAFT: Max w=43.88 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=-2.14K, T_core=-13.8°C (Δ=-1.9)
+[INFO]     📉 STRATIFICATION: eff=0.78, eff_updraft=0.68 (reduction: 32%)
+[INFO]     🌀 NU_TURB: max=0.0367, mean=0.0054 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=-0.38 g/kg (q_sat=24.2, q_sfc=24.6)
+[INFO]     💦 MOISTURE FLOOR: 1477747180 cells clamped
+[INFO]     💧 BETTS-MILLER: 87818 cells active, 2203.983 g/kg condensed (τ=900s)
+[INFO]     🔬 BM PROFILE: q_sfc=24.54 q_1250=22.63 q_2500=23.58 g/kg
+[INFO]     🔬 BM LEVELS: L0(6748 cells, dq=0.000) L1(7258, dq=-94.440) L2(6389, dq=-206.127)
+[INFO]     🔬 COUPLING: q_gradient=0.96 g/kg, floor_clamps=0
+[INFO]     🚀 TRANSLATION: 11.8 kts (target: 18-22 kts)
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=41.2kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.78, Track=0.80, Offset=0.9, COH=0.777
+    METRICS: Pmin:-0.00, Wmax:41.2 kts (TS), LOCK:78.90%, COH:0.777
+[INFO] [INFO] Frame 24600: Max Wind 41.2 kts | θ′_max: 19.23 K
+[INFO]     🔥 BUOYANCY: Raw=0.5098 → Limited=0.3849 m/s² (clamp=24.5%)
+[INFO]     🌬️ UPDRAFT: Max w=47.33 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.9kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.70, Track=0.80, Offset=0.8, COH=0.701
+    METRICS: Pmin:-0.00, Wmax:40.9 kts (TS), LOCK:78.88%, COH:0.701
+[INFO] [INFO] Frame 24700: Max Wind 40.9 kts | θ′_max: 18.39 K
+[INFO]     🔥 BUOYANCY: Raw=0.4877 → Limited=0.3755 m/s² (clamp=23.0%)
+[INFO]     🌬️ UPDRAFT: Max w=48.54 m/s
+    🐻 V47 COLD START: Phase=GENESIS, Wind=40.7kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.66, Track=0.80, Offset=1.2, COH=0.659
+    METRICS: Pmin:-0.00, Wmax:40.7 kts (TS), LOCK:78.86%, COH:0.659
+[INFO] [INFO] Frame 24800: Max Wind 40.7 kts | θ′_max: 18.56 K
+[INFO]     🔥 BUOYANCY: Raw=0.4922 → Limited=0.3775 m/s² (clamp=23.3%)
+[INFO]     🌬️ UPDRAFT: Max w=49.95 m/s
+    >>> STAGE TRANSITION: TS -> Potential <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=35.4kts, p_range=0.0001
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.69, Track=0.78, Offset=1.8, COH=0.691
+    METRICS: Pmin:-0.00, Wmax:35.4 kts (Potential), LOCK:78.83%, COH:0.691
+[INFO] [INFO] Frame 24900: Max Wind 35.4 kts | θ′_max: 17.94 K
+[INFO]     🔥 BUOYANCY: Raw=0.4757 → Limited=0.3702 m/s² (clamp=22.2%)
+[INFO]     🌬️ UPDRAFT: Max w=40.30 m/s
+[INFO] 
+[INFO] ======================================================================
+[INFO] V6.0 'THETA' SIMULATION SUMMARY
+[INFO] ======================================================================
+[INFO] 
+[INFO] CONFIGURATION:
+[INFO]   θ_surface: 300.0 K
+[INFO]   Γ_θ: 4.0 K/km
+[INFO]   Scale height: 8500 m
+[INFO] 
+[INFO] GOVERNOR STATUS:
+[INFO]   Flux Governor: Active
+[INFO]   WISDOM: Active
+[INFO]   Velocity Governor: Active
+[INFO]   Thermo Firewalls: Active
+[INFO] 
+[INFO] THERMODYNAMICS:
+[INFO]   Condensation Events: 24979
+[INFO]   Condensation Blocked: 0
+[INFO]   Stratification Cooling Total: 3.07e+07 K
+[INFO]   Emergency Halted: False
+[INFO] 
+[INFO] INTENSITY:
+[INFO]   Initial: 29.2 kts
+[INFO]   Final: 40.0 kts
+[INFO]   Peak: 49.8 kts
+[INFO]   Trend: 🚀 INTENSIFYING
+[INFO] 
+[INFO] WARM CORE (θ′):
+[INFO]   Initial θ′_max: 4.99 K
+[INFO]   Final θ′_max: 17.94 K
+[INFO]   Peak θ′_max: 20.41 K
+[INFO] 
+[INFO] KINEMATICS:
+[INFO]   Start: (13.20°N, -20.01°W)
+[INFO]   End: (13.77°N, -22.16°W)
+[INFO]   Distance: 129.5 nm in 12.0 hours
+[INFO]   Average Speed: 10.8 kts
+[INFO] 
+[INFO] ======================================================================
+
+================================================================================
+  V6.3 'SUSTAIN' COMPLETE - INTENSITY MAINTENANCE FIX
+================================================================================
+
+  V6.0 FOUNDATION:
+    ✅ Prognostic: θ′ (potential temperature perturbation)
+    ✅ Buoyancy: b = g θ′/θ₀ (physical limits from stability)
+
+  V6.1 FIX (Gemini):
+    ✅ Moist-aware stratification
+
+  V6.2 FIX (Five + Gemini Ensemble):
+    • Resolution Boost: 1500.0 (default=1500)
+    • Moist Floor: 0.3 (default=0.3)
+    • Updraft-Only Moist: False
+    • Core RH Init: 95%
+    • θ′ Bounds: [-50, 50] K
+
+  V6.3 SUSTAIN (Gemini Decay Fix):
+    • WISHE Boost: ❌ disabled
+    • Cold Diffusion: ❌ disabled
+
+  V6.4 SINK (Five's θ′ Accumulation Fix):
+    • Radiative Cooling: ❌ disabled
+    • Mean Removal: ❌ disabled
+    • Env Relaxation: ❌ disabled
+
+  V6.5 NUMERICS (Gemini's Stability Fix):
+    • Monotonic Advection: ❌ disabled
+    • Flux Throttle: ❌ disabled
+
+  V6.6 BALANCE (Gemini's Thermal Equilibrium Fix):
+    • Dynamic Cooling: ❌ disabled
+
+  V6.7 PROPORTIONAL (Gemini's Fuel Balance Fix):
+    • Proportional Throttle: ❌ disabled
+    • Moisture Floor: 0.10 g/kg
+
+  THEORY: Gemini Research + Five + Claude Ensemble
+================================================================================
+
+[LOGGING] Completed at: 2026-02-07 21:21:22
+[LOGGING] Log saved to: oracle_v6_HUGO_1989_20260207_210512.log

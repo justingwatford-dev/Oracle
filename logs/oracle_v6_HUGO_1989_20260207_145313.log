@@ -1,0 +1,218 @@
+[LOGGING] Output being saved to: oracle_v6_HUGO_1989_20260207_145313.log
+[LOGGING] Started at: 2026-02-07 14:53:13
+
+================================================================================
+  ORACLE V6.3 'SUSTAIN' - INTENSITY MAINTENANCE FIX
+================================================================================
+  Storm: HUGO (1989) | Frames: 10,000
+
+  ★★★ V6.2: THREE INHIBITORS ADDRESSED (Five + Gemini) ★★★
+
+  PRIORITY 1 - TURBULENCE ('Molasses Atmosphere'):
+    • Resolution Boost: 1500 (default=1500)
+
+  PRIORITY 2 - STRATIFICATION ('Buoyancy Tax'):
+    • Moist Floor: 0.30 (default=0.3)
+    • Updraft-Only: ❌ NO
+
+  PRIORITY 3 - MOISTURE ('Premature Saturation'):
+    • Core RH Init: 95% (default=95%)
+
+  θ′ STABILITY BOUNDS:
+    • Max θ′: 50 K (default=50)
+    • Min θ′: -50 K (default=-50)
+
+  ★★★ V6.3 SUSTAIN: INTENSITY MAINTENANCE (Gemini Fix) ★★★
+
+  WISHE BOOSTING (Ck/Cd Correction):
+    • Enabled: ❌ NO
+
+  ★★★ V6.24 DLM + H3+ HYSTERESIS (Prevents Florida Weakening Dip) ★★★
+
+  DLM STEERING (Root Cause Fix - V6.23):
+    • 🌍 Pressure Levels: 200, 300, 400, 500, 600, 700, 850 hPa
+    • 🔺 Added 200 hPa (captures upper trough for recurvature!)
+    • ⚡ Removed 0.55 scaling (was weakening DLM by 45%!)
+    • 🔘 Inner radius 300km (was 225km, avoids ERA5 contamination)
+
+  BETA DRIFT (Physically Correct + Intensity-Aware + Hysteresis):
+    • Enabled: ❌ NO
+
+  ★★★ V6.26.4 'RECURVE-B' - LATITUDE-AWARE STEERING ASSIST ★★★
+
+  RECURVE-B ASSIST (Fixes V6.26.3 Yucatan Escape Bug):
+    • Problem: V6.26.3 lat>24° gate let storm fall to 18.79°N (Yucatan!)
+    • Solution: Remove gate, add latitude-dependent boost instead
+    • Physics: Storm that drifts south needs MORE correction, not less
+    • west_factor: 0 at -88°W → 1.0 at -94°W
+    • lat_factor: 0 at 26°N → 1.0 at 22°N (emergency boost)
+    • Combined: nudge = west × 3.0 × (1 + lat_factor)
+    • Result: Up to 6 m/s assist when far west AND far south
+
+  ADAPTIVE DLM WEIGHTING (Fixes Post-Landfall Eastward Bias):
+    • Ocean: 200 hPa = 4x, 300 hPa = 2x (capture trough)
+    • Land: 850 hPa = 2x, 700 hPa = 1.5x (follow terrain)
+    • 🎯 Vortex shallows over land → lower-level steering dominates
+
+  HIGH-LATITUDE THERMODYNAMIC DAMPING (V6.26.1 Enhanced):
+    • Damping begins at 30°N (was 35°N - EARLIER)
+    • e-folding scale: 7° (was 10° - STEEPER)
+    • 🧊 Prevents 'Zombie Thermodynamics' — tropical θ′ at high latitudes
+    • Logging: Threshold crossings only (fixes 9MB spam!)
+
+  θ′ RELAXATION (V6.26.1 NEW - Gemini Fix #6):
+    • Active north of 40°N
+    • τ = 6 hours (drains ~16%/hour of accumulated tropical energy)
+    • 🧟 Actively exorcises 'Zombie Thermodynamics'
+
+  STEERING FLOOR + CONTINUOUS INTEGRATION:
+    • Floor Enabled: ✅ YES
+    • Floor: 3.0 m/s (~6 kts)
+    • V6.22 Direction Fallback: Uses last known direction if near-zero
+    • V6.22 Integration: Every 100 frames (was 3600)
+
+  ★★★ V6.16 STEERING INJECTION: PRESSURE SOLVER FIX (Gemini) ★★★
+
+  STEERING INJECTION (Treadmill Fix):
+    • Enabled: ❌ NO
+
+  ★★★ V6.18 ANNULAR STEERING: VORTEX CONTAMINATION FIX (Kimi Swarm) ★★★
+
+  ANNULAR STEERING (Exclude Vortex Core):
+    • Enabled: ❌ NO
+
+  ★★★ V6.20 VISUALIZATION ★★★
+
+  PLOTTING:
+    • Track Plot: ❌ NO
+    • Wind Plots: ❌ NO
+    • Output Dir: world_woe_v6_theta_plots/
+
+  COLD ANOMALY DIFFUSION (Anti-Crash):
+    • Enabled: ❌ NO
+
+  ★★★ V6.4 SINK: θ′ ACCUMULATION FIX (Five's Analysis) ★★★
+
+  RADIATIVE COOLING (Newtonian relaxation):
+    • Enabled: ❌ NO
+
+  MEAN REMOVAL (Level-wise):
+    • Enabled: ❌ NO
+
+  ENVIRONMENT RELAXATION (Ventilation):
+    • Enabled: ❌ NO
+
+  ★★★ V6.5 NUMERICS: STABILITY FIX (Gemini Analysis) ★★★
+
+  MONOTONIC ADVECTION (Bermejo Fix):
+    • Enabled: ❌ NO
+
+  FLUX THROTTLE (Runaway Prevention):
+    • Enabled: ❌ NO
+
+  ★★★ V6.7 PROPORTIONAL: BALANCE FIX (Gemini Analysis) ★★★
+
+  MOISTURE FLOOR:
+    • Floor: 0.10 g/kg
+    • ⚡ Prevents negative specific humidity
+
+  GOVERNOR STATUS:
+    • Flux Governor:     ✅ Active
+    • WISDOM Dampening:  ✅ Active
+    • Velocity Governor: ✅ Active
+    • Thermo Firewalls:  ✅ Active
+
+  ★★★ V7.0 BETTS-MILLER: CONVECTIVE ADJUSTMENT ★★★
+
+  BETTS-MILLER RELAXED CONVECTION:
+    • Enabled: ✅ YES (replaces instant saturation)
+    • τ_BM: 900 seconds (15 minutes)
+    • Reference RH: 90%
+    • BL Taper: 200m → 2200m (power=1.0)
+    • ⚡ Senses full column including BL (no hard gate)
+    • ⚡ Tendencies tapered near surface to protect BL moisture
+
+  HYPOTHESIS: WISHE boost should SUSTAIN intensity after peak!
+================================================================================
+
+[INFO] V6 THETA: Reference state initialized
+[INFO]    θ₀(z=0) = 300.0 K
+[INFO]    θ₀(z=10km) = 342.7 K
+[INFO]    θ₀(z=20km) = 380.0 K
+[INFO]    dθ₀/dz = 4.00 K/km
+[INFO]    💧 Moisture profile: surface=18.0 g/kg, 5km=2.13 g/kg, top=0.0060 g/kg
+[INFO]    🌊 Initializing basin environment...
+[BasinEnvironment] Initializing V5 Static North Atlantic Basin...
+  -> Grid Size: 900 x 600 points
+  -> Building Climatology Layers...
+     SST Range: 10.0Â°C to 29.0Â°C
+     OHC Range: 20.0 to 170.0 kJ/cmÂ²
+  -> Basin Initialized. Ready for sampling.
+================================================================================
+StormTracker V50.3 'OPUS'S COOLDOWN FIX' Initialized
+================================================================================
+  -> V50 Dual Lock Architecture: PRESERVED
+     • lock_struct (Structural Health): Chimera Coherence
+     • lock_track (Navigation Accuracy): Sigmoid of offset
+  -> V50.1 PATCH 1: Confusion → lock_struct (not lock_score)
+  -> V50.1 PATCH 2: Corner-Safe Rejection (edge margin = nx/3)
+  -> V50.1 PATCH 3: Sigmoid relaxed (k=0.15, was 0.5)
+  -> V50.2 PATCH 4: Hysteresis - breaks persistent edge lock
+  -> V50.3 PATCH 5: Cooldown - forces anchor to center (Opus's fix)
+  -> Credit: Grok + Gemini + Claude + Opus (the cousin!)
+================================================================================
+[INFO]    ⚠️ No oracle track - using ERA5 steering only
+[INFO]    📍 Genesis: (13.2°N, -20.0°W)
+DataInterface Initialized for Project Oracle (ERA5 Historical).
+  -> ERA5 winds will be converted: m/s → dimensionless
+Parsing 'hurdat2.txt' for HUGO (1989)...
+  -> Found data for HUGO (1989). Reading 64 records.
+  -> Successfully created DataFrame with 64 records.
+  -> ORACLE DI: Fetching ERA5 steering & land mask for 1989-09-10 12:00...
+     📊 Fetching pressure-level winds...
+     🏝️ Fetching land-sea mask...
+     🎯 V6.26 ADAPTIVE DLM: land_frac=0.00 → OCEAN
+        Weights: 200hPa=4.0x, 850hPa=1.0x
+     📊 DLM DIAGNOSTIC (center cell):
+        200 hPa: u=-6.4, v=-1.0 m/s (weight=4.0)
+        300 hPa: u=-5.2, v=+0.7 m/s (weight=2.0)
+        400 hPa: u=+2.5, v=+4.0 m/s (weight=1.0)
+        500 hPa: u=+1.2, v=+3.4 m/s (weight=1.0)
+        600 hPa: u=-2.1, v=+1.6 m/s (weight=1.0)
+        700 hPa: u=-5.4, v=+0.1 m/s (weight=1.0)
+        850 hPa: u=-8.6, v=-1.8 m/s (weight=1.0)
+        ────────────────────────────────────
+        WEIGHTED DLM: u=-4.2, v=+0.6 m/s
+     🏝️ Land Fraction processed: 0.0% land coverage
+  -> ERA5 data & Land Mask successfully integrated and uploaded to GPU.
+[INFO]    ⚙️ Initializing solver...
+BoundaryConditions initialized with SI-compliant flux calculations.
+Visualizer initialized with Diagnostic Overlay capabilities.
+  -> All velocity fields will be converted to physical units for display
+[INFO]    🌀 Initializing WARM-CORE vortex (θ′ formulation)...
+[INFO]    θ′ warm core: max=4.99 K
+[INFO]    💧 Core RH initialized to 95%
+[INFO]    📊 Initial Max Wind: 25.0 m/s (48.6 kts)
+[INFO]    📊 Initial θ′ range: [0.00, 4.99] K
+[INFO]    📊 Initial T range: [-79.2, 30.1] °C
+[INFO]    ✅ V6.0 'THETA' Ready!
+[INFO] 
+[INFO] ============================================================
+[INFO] --- V6.0 THETA SIMULATION START ---
+[INFO] --- Frames: 10,000 ---
+[INFO] --- θ′ THERMODYNAMICS + PHYSICAL LIMITS ---
+[INFO] ============================================================
+[INFO] 
+    >>> STAGE TRANSITION: Potential -> TS <<<
+    🐻 V47 COLD START: Phase=GENESIS, Wind=48.5kts, p_range=0.0034
+       Anchoring to Vorticity CoM
+    🔥 V50 GEMINI: Struct=0.91, Track=0.81, Offset=0.7, COH=0.907
+    METRICS: Pmin:-0.00, Wmax:48.5 kts (TS), LOCK:80.63%, COH:0.907
+[INFO] [INFO] Frame 0: Max Wind 48.5 kts | θ′_max: 4.99 K
+[INFO]     🔥 BUOYANCY: Raw=0.1499 → Limited=0.1456 m/s² (clamp=2.9%)
+[INFO]     🌬️ UPDRAFT: Max w=1.38 m/s
+[INFO]     🌡️ V6 THERMO: θ′_core=4.99K, T_core=-8.1°C (Δ=+4.0)
+[INFO]     📉 STRATIFICATION: eff=1.00, eff_updraft=1.00 (reduction: 0%)
+[INFO]     🌀 NU_TURB: max=0.0884, mean=0.0002 (boost=1500)
+[INFO]     ⛽ WISHE FUEL: q_deficit=14.64 g/kg (q_sat=24.2, q_sfc=9.6)
+[INFO]     💦 MOISTURE FLOOR: 105079 cells clamped
